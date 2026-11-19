@@ -23,4 +23,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
 	Optional<Usuario> findByIdAndNegocioId(Long id, Long negocioId);
 
+	/** Los que aparecen en la agenda: activos y que atienden. */
+	List<Usuario> findAllByNegocioIdAndActivoTrueAndAtiendeTrueOrderByNombreAsc(Long negocioId);
+
 }

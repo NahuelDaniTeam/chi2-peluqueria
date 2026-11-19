@@ -46,6 +46,10 @@ public class Usuario {
 	@Column(nullable = false)
 	private boolean activo;
 
+	/** Si atiende clientes: aparece en la agenda y se le pueden dar turnos. */
+	@Column(nullable = false)
+	private boolean atiende;
+
 	@Column(name = "creado_en", nullable = false, updatable = false)
 	private Instant creadoEn;
 
@@ -59,6 +63,8 @@ public class Usuario {
 		this.passwordHash = passwordHash;
 		this.rol = rol;
 		this.activo = true;
+		// Los barberos atienden; el dueño lo marca en su perfil si también corta
+		this.atiende = rol == Rol.BARBERO;
 		this.creadoEn = Instant.now();
 	}
 
@@ -83,6 +89,17 @@ public class Usuario {
 
 	public void reactivar() {
 		this.activo = true;
+	}
+
+	public void cambiarAtiende(boolean atiende) {
+		if (atiende && !rol.esDeNegocio()) {
+			throw new IllegalStateException("Un usuario de CHI2 no atiende clientes");
+		}
+		this.atiende = atiende;
+	}
+
+	public boolean isAtiende() {
+		return atiende;
 	}
 
 	public Long getId() {

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${miembro.nombre})}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{/equipo}, 'Equipo')}"></a>
+	<div th:replace="~{fragments/layout :: aviso}"></div>
+	<p class="etiqueta mt-2" th:text="${miembro.rol.etiqueta}">Barbero</p>
+	<h1 class="titulo-display mt-4 text-5xl" th:text="${miembro.nombre}">Juan</h1>
+	<p class="mt-2 text-sm text-tenue" th:text="${miembro.email}">juan@barberia.com</p>
+
+	<!-- Atiende o no -->
+	<section class="tarjeta mt-8 flex items-center justify-between gap-4">
+		<div>
+			<p class="font-medium" th:text="${miembro.atiende} ? 'Atiende clientes' : 'No atiende clientes'">Atiende clientes</p>
+			<p class="mt-1 text-sm text-tenue">Si atiende, aparece en la agenda y le pueden dar turnos.</p>
+		</div>
+		<form th:action="@{/equipo/{id}/atiende(id=${miembro.id})}" method="post" class="shrink-0">
+			<input type="hidden" name="valor" th:value="${!miembro.atiende}">
+			<button type="submit" class="btn-secundario" th:text="${miembro.atiende} ? 'No atiende' : 'Atiende'">No atiende</button>
+		</form>
+	</section>
+
+	<!-- Servicios que hace -->
+	<section th:if="${miembro.atiende}" class="mt-12">
+		<h2 class="text-xl font-medium">Servicios que hace</h2>
+		<p class="mt-1 text-sm text-tenue">Si cobra distinto que el local, poné su precio. Vacío = el precio del local.</p>
+
+		<p th:if="${#lists.isEmpty(servicios)}" class="mt-6 text-tenue">
+			Todavía no hay servicios. <a th:href="@{/barberia/servicios}" class="font-medium text-tinta underline underline-offset-4">Cargalos acá</a>.
+		</p>
+
+		<form th:unless="${#lists.isEmpty(servicios)}" th:action="@{/equipo/{id}/servicios(id=${miembro.id})}"
+		      th:object="${form}" method="post" class="mt-6 space-y-3" novalidate>
+			<div th:each="s, i : ${servicios}" class="tarjeta">
+				<input type="hidden" th:field="*{items[__${i.index}__].servicioId}">
+				<label class="flex min-h-11 items-center gap-3">
+					<input type="checkbox" th:field="*{items[__${i.index}__].hace}" class="size-5 shrink-0 accent-tinta">
+					<span class="min-w-0 flex-1">
+						<span class="block truncate font-medium" th:text="${s.servicio.nombre}">Corte</span>
+						<span class="block text-sm text-tenue"
+						      th:text="|${s.servicio.duracionTexto} · local ${s.servicio.precioTexto}|">30 min · local $ 12.000</span>
+					</span>
+				</label>
+				<div class="relative mt-3">
+					<span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-tenue">$</span>
+					<input th:field="*{items[__${i.index}__].precioEspecial}" type="text" inputmode="numeric" autocomplete="off"
+					       th:placeholder="|Precio de ${miembro.nombre} (opcional)|" class="campo pl-8"
+					       th:attr="aria-label=|Precio de ${miembro.nombre} para ${s.servicio.nombre}|">
+				</div>
+				<p th:if="${#fields.hasErrors('items[__${i.index}__].precioEspecial')}"
+				   th:errors="*{items[__${i.index}__].precioEspecial}" class="error-campo"></p>
+			</div>
+			<button type="submit" class="btn-principal w-full justify-center">Guardar servicios</button>
+		</form>
+	</section>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('equipo')}"></nav>
+</body>
+</html>
