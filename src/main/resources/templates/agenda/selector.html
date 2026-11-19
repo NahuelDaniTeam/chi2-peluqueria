@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Partes compartidas por "nuevo turno" y "reprogramar" (ver TurnoController).
+  Modelo: dias (List<Opcion>), grupos (horas libres por mañana y tarde), horaElegida, diaElegido.
+-->
+<body>
+
+<!-- Chips de una sola línea (barberos): ~{agenda/selector :: chips(${barberos}, 'Con quién')} -->
+<div th:fragment="chips(opciones, nombre)" class="fila-deslizable" role="group" th:attr="aria-label=${nombre}">
+	<a th:each="o : ${opciones}" th:href="@{${o.enlace}}" class="chip" th:classappend="${o.elegida} ? 'chip-elegido'"
+	   th:attr="aria-current=${o.elegida} ? 'true' : null" th:text="${o.texto}">Juan</a>
+</div>
+
+<!-- Los días a la vista, deslizables: arriba el día, abajo la fecha (o "Cerrado" / "Sin lugar") -->
+<div th:fragment="dias" class="fila-deslizable" role="group" aria-label="Día">
+	<a th:each="d : ${dias}" th:href="@{${d.enlace}}"
+	   class="flex min-h-14 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-2xl border text-sm transition"
+	   th:classappend="${d.elegida} ? 'border-tinta bg-tinta text-fondo' : (${d.apagada} ? 'border-linea bg-fondo text-tenue' : 'border-linea bg-superficie hover:border-tinta')"
+	   th:attr="aria-current=${d.elegida} ? 'date' : null">
+		<span class="font-medium first-letter:uppercase" th:text="${d.texto}">Hoy</span>
+		<span class="text-xs" th:classappend="${d.elegida} ? 'text-fondo/70' : 'text-tenue'" th:text="${d.detalle}">19/11</span>
+	</a>
+	<!-- Si el día elegido quedó fuera de la pantalla, desliza la fila hasta él (sin JavaScript se ve igual, sin deslizar) -->
+	<script>
+		(function (fila) {
+			var elegido = fila.querySelector('[aria-current="date"]');
+			if (elegido) fila.scrollLeft = elegido.offsetLeft - fila.offsetLeft - 20;
+		})(document.currentScript.parentElement);
+	</script>
+</div>
+
+<!-- Las horas libres del día elegido, como botones de radio grandes -->
+<div th:fragment="horas" class="space-y-5">
+	<p th:if="${#lists.isEmpty(grupos)}" class="text-tenue"
+	   th:text="${diaElegido.abierto} ? 'No quedan horarios libres este día. Probá con otro.' : 'La barbería no abre este día.'">No quedan horarios libres.</p>
+	<fieldset th:each="g : ${grupos}">
+		<legend class="mb-2 text-xs font-medium tracking-wider text-tenue uppercase" th:text="${g.nombre}">Mañana</legend>
+		<div class="grid grid-cols-4 gap-2">
+			<label th:each="h : ${g.horas}" class="block">
+				<input type="radio" name="hora" th:value="${h}" th:checked="${h == horaElegida}" class="peer sr-only">
+				<span class="chip w-full px-0 tabular-nums peer-checked:border-tinta peer-checked:bg-tinta peer-checked:text-fondo peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-acento"
+				      th:text="${h}">10:00</span>
+			</label>
+		</div>
+	</fieldset>
+</div>
+
+</body>
+</html>

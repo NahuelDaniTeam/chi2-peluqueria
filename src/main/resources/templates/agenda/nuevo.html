@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Cargar un turno (ver TurnoController). Se elige de arriba para abajo: servicio, con quién (solo el dueño),
+  día y horario; después los datos del cliente.
+-->
+<head th:replace="~{fragments/layout :: head('Nuevo turno')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{${volverA}}, 'Agenda')}"></a>
+	<h1 class="titulo-display mt-2 text-5xl">Nuevo turno</h1>
+
+	<!-- Sin servicios o sin nadie que los haga, no hay turnos -->
+	<div th:unless="${hayServicios}" class="tarjeta mt-8">
+		<p class="font-medium">Todavía no se pueden dar turnos.</p>
+		<p th:if="${usuario.dueno}" class="mt-1 text-sm text-tenue">
+			Hace falta al menos un <a th:href="@{/barberia/servicios}" class="font-medium text-tinta underline underline-offset-4">servicio</a>
+			y alguien del <a th:href="@{/equipo}" class="font-medium text-tinta underline underline-offset-4">equipo</a> que atienda y lo haga.
+		</p>
+		<p th:unless="${usuario.dueno}" class="mt-1 text-sm text-tenue">No tenés servicios asignados. Pedile al dueño que te los cargue.</p>
+	</div>
+
+	<!-- 1. Servicio -->
+	<section th:if="${hayServicios}" class="mt-8">
+		<h2 class="rotulo">Servicio</h2>
+		<div th:if="${servicioElegido == null}" class="space-y-2">
+			<a th:each="s : ${servicios}" th:href="@{${s.enlace}}" class="tarjeta flex min-h-14 items-center justify-between gap-4 p-4 hover:border-tinta">
+				<span class="min-w-0 truncate font-medium" th:text="${s.texto}">Corte</span>
+				<span class="shrink-0 text-sm text-tenue" th:text="${s.detalle}">30 min · $ 12.000</span>
+			</a>
+		</div>
+		<div th:if="${servicioElegido != null}" class="tarjeta flex items-center justify-between gap-4 p-4">
+			<span class="min-w-0">
+				<span class="block truncate font-medium" th:text="${servicioElegido.nombre}">Corte</span>
+				<span class="block text-sm text-tenue" th:text="|${servicioElegido.duracionTexto} · ${servicioElegido.precioTexto}|">30 min · $ 12.000</span>
+			</span>
+			<a th:if="${servicios.size() > 1}" th:href="@{${cambiarServicio}}"
+			   class="btn-secundario shrink-0">Cambiar</a>
+		</div>
+	</section>
+
+	<th:block th:if="${servicioElegido != null}">
+		<!-- 2. Con quién (solo el dueño; un barbero se carga turnos a sí mismo) -->
+		<section th:if="${barberos != null}" class="mt-8">
+			<h2 class="rotulo">Con quién</h2>
+			<div th:replace="~{agenda/selector :: chips(${barberos}, 'Con quién')}"></div>
+		</section>
+
+		<!-- 3. Día -->
+		<section class="mt-8">
+			<h2 class="rotulo">Día</h2>
+			<div th:replace="~{agenda/selector :: dias}"></div>
+			<form th:action="@{/agenda/nuevo}" method="get" class="mt-3 flex items-center gap-2">
+				<input type="hidden" name="servicio" th:value="${form.servicio}">
+				<input th:if="${form.barbero != null}" type="hidden" name="barbero" th:value="${form.barbero}">
+				<label for="otra-fecha" class="sr-only">Otra fecha</label>
+				<input id="otra-fecha" type="date" name="fecha" th:value="${form.fecha}" th:min="${hoy}" th:max="${ultimoDia}" class="campo">
+				<button type="submit" class="btn-secundario shrink-0">Ver ese día</button>
+			</form>
+		</section>
+
+		<!-- 4. Horario y cliente -->
+		<form th:action="@{/agenda/nuevo}" th:object="${form}" method="post" class="mt-8" novalidate>
+			<input type="hidden" th:field="*{servicio}">
+			<input type="hidden" th:field="*{barbero}">
+			<input type="hidden" name="fecha" th:value="*{fecha}">
+
+			<section>
+				<h2 class="rotulo first-letter:uppercase" th:text="${fechaTexto}">jueves 20 de noviembre</h2>
+				<div th:replace="~{agenda/selector :: horas}"></div>
+				<p th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}" class="error-campo" role="alert"></p>
+			</section>
+
+			<section th:unless="${#lists.isEmpty(grupos)}" class="mt-10 space-y-5">
+				<h2 class="text-xl font-medium">Cliente</h2>
+				<div>
+					<label for="nombre" class="rotulo">Nombre</label>
+					<input th:field="*{nombre}" type="text" autocomplete="off" autocapitalize="words" maxlength="80" class="campo">
+					<p th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="error-campo"></p>
+				</div>
+				<div>
+					<label for="telefono" class="rotulo">Teléfono (opcional)</label>
+					<input th:field="*{telefono}" type="tel" inputmode="tel" autocomplete="off" maxlength="30" placeholder="11 5555 5555" class="campo">
+					<p th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="error-campo"></p>
+				</div>
+				<div>
+					<label for="nota" class="rotulo">Nota (opcional)</label>
+					<input th:field="*{nota}" type="text" autocomplete="off" maxlength="200" placeholder="Ej. trae una foto del corte" class="campo">
+					<p th:if="${#fields.hasErrors('nota')}" th:errors="*{nota}" class="error-campo"></p>
+				</div>
+				<button type="submit" class="btn-principal w-full justify-center">Reservar turno</button>
+			</section>
+		</form>
+	</th:block>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('agenda')}"></nav>
+</body>
+</html>

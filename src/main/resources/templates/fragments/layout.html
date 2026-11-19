@@ -54,16 +54,16 @@
 </a>
 
 <!--
-  Navegación inferior, como en una app. "activo" es la pestaña actual: inicio, equipo, negocios o cuenta.
+  Navegación inferior, como en una app. "activo" es la pestaña actual: agenda, equipo, barberia, negocios o cuenta.
   Cada pantalla con navegación deja lugar abajo con pb-28 en el <main>.
 -->
 <nav th:fragment="navegacion(activo)" th:if="${usuario != null}" aria-label="Secciones"
      class="fixed inset-x-0 bottom-0 z-20 border-t border-linea bg-superficie/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
 	<ul class="mx-auto flex max-w-md justify-around">
 		<li th:unless="${usuario.admin}">
-			<a th:href="@{/}" class="pestana" th:classappend="${activo == 'inicio'} ? 'pestana-activa'">
-				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
-				Inicio
+			<a th:href="@{/agenda}" class="pestana" th:classappend="${activo == 'agenda'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+				Agenda
 			</a>
 		</li>
 		<li th:if="${usuario.dueno}">

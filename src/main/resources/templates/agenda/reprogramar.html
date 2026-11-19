@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- Pasar un turno a otro día u horario y, si es el dueño, a otro barbero (ver TurnoController). -->
+<head th:replace="~{fragments/layout :: head('Reprogramar')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{${volverA}}, ${t.turno.clienteNombre})}"></a>
+	<h1 class="titulo-display mt-2 text-5xl">Reprogramar</h1>
+	<p class="mt-2 text-sm text-tenue"
+	   th:text="|${t.turno.clienteNombre} · ${t.turno.servicio.nombre}. Ahora: ${t.fechaTexto} a las ${t.desdeTexto} con ${t.turno.barbero.nombre}.|">
+		Martín · Corte. Ahora: jue 20/11 a las 10:00 con Juan.
+	</p>
+
+	<section th:if="${barberos != null and barberos.size() > 1}" class="mt-8">
+		<h2 class="rotulo">Con quién</h2>
+		<div th:replace="~{agenda/selector :: chips(${barberos}, 'Con quién')}"></div>
+	</section>
+
+	<section class="mt-8">
+		<h2 class="rotulo">Día</h2>
+		<div th:replace="~{agenda/selector :: dias}"></div>
+		<form th:action="@{/agenda/turnos/{id}/reprogramar(id=${t.turno.id})}" method="get" class="mt-3 flex items-center gap-2">
+			<input type="hidden" name="barbero" th:value="${form.barbero}">
+			<label for="otra-fecha" class="sr-only">Otra fecha</label>
+			<input id="otra-fecha" type="date" name="fecha" th:value="${form.fecha}" th:min="${hoy}" th:max="${ultimoDia}" class="campo">
+			<button type="submit" class="btn-secundario shrink-0">Ver ese día</button>
+		</form>
+	</section>
+
+	<form th:action="@{/agenda/turnos/{id}/reprogramar(id=${t.turno.id})}" th:object="${form}" method="post" class="mt-8" novalidate>
+		<input type="hidden" th:field="*{barbero}">
+		<input type="hidden" name="fecha" th:value="*{fecha}">
+		<section>
+			<h2 class="rotulo first-letter:uppercase" th:text="${fechaTexto}">jueves 20 de noviembre</h2>
+			<div th:replace="~{agenda/selector :: horas}"></div>
+			<p th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}" class="error-campo" role="alert"></p>
+		</section>
+		<button th:unless="${#lists.isEmpty(grupos)}" type="submit" class="btn-principal mt-8 w-full justify-center">Guardar el nuevo horario</button>
+	</form>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('agenda')}"></nav>
+</body>
+</html>

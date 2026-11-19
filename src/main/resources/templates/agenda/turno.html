@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- Un turno: sus datos, reprogramar, cancelar y su historial (ver TurnoController). -->
+<head th:replace="~{fragments/layout :: head(${t.turno.clienteNombre})}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{${volverA}}, 'Agenda')}"></a>
+	<div th:replace="~{fragments/layout :: aviso}"></div>
+	<p class="etiqueta mt-2" th:text="${t.turno.cancelacionTardia} ? 'Cancelado tarde' : ${t.turno.estado.etiqueta}">Reservado</p>
+	<h1 class="titulo-display mt-4 text-5xl" th:text="${t.turno.clienteNombre}">Martín</h1>
+	<a th:if="${t.turno.clienteTelefono}" th:href="|tel:${t.turno.clienteTelefono}|"
+	   class="mt-2 inline-flex min-h-11 items-center text-tenue underline decoration-linea underline-offset-4 hover:text-tinta"
+	   th:text="${t.turno.clienteTelefono}">11 5555 5555</a>
+
+	<dl class="tarjeta mt-6 divide-y divide-linea py-1">
+		<div class="flex items-center justify-between gap-4 py-3">
+			<dt class="text-sm text-tenue">Cuándo</dt>
+			<dd class="text-right font-medium" th:text="|${t.fechaTexto} · ${t.desdeTexto} a ${t.hastaTexto}|">jue 20/11 · 10:00 a 10:30</dd>
+		</div>
+		<div class="flex items-center justify-between gap-4 py-3">
+			<dt class="text-sm text-tenue">Servicio</dt>
+			<dd class="text-right font-medium" th:text="${t.turno.servicio.nombre}">Corte</dd>
+		</div>
+		<div class="flex items-center justify-between gap-4 py-3">
+			<dt class="text-sm text-tenue">Con</dt>
+			<dd class="text-right font-medium" th:text="${t.turno.barbero.nombre}">Juan</dd>
+		</div>
+		<div th:if="${t.turno.nota}" class="flex items-start justify-between gap-4 py-3">
+			<dt class="text-sm text-tenue">Nota</dt>
+			<dd class="text-right" th:text="${t.turno.nota}">Trae una foto</dd>
+		</div>
+	</dl>
+
+	<!-- Acciones: solo mientras está reservado -->
+	<div th:if="${t.turno.reservado}" class="mt-6 space-y-3">
+		<a th:href="@{/agenda/turnos/{id}/reprogramar(id=${t.turno.id})}" class="btn-principal w-full justify-center">Reprogramar</a>
+
+		<!-- Cancelar pide confirmación sin JavaScript: el botón de verdad aparece al abrir -->
+		<details class="group">
+			<summary class="btn-secundario w-full cursor-pointer list-none group-open:hidden">Cancelar turno</summary>
+			<div class="tarjeta">
+				<p class="font-medium">¿Cancelar el turno de <span th:text="${t.turno.clienteNombre}">Martín</span>?</p>
+				<p class="mt-1 text-sm text-tenue" th:text="${cancelacionTardia}
+						? 'Faltan menos de 24 horas: va a quedar como cancelación tardía.'
+						: 'El horario queda libre para otro cliente.'">El horario queda libre para otro cliente.</p>
+				<form th:action="@{/agenda/turnos/{id}/cancelar(id=${t.turno.id})}" method="post" class="mt-4">
+					<button type="submit" class="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-acento px-4 text-sm font-medium text-superficie transition hover:bg-tinta">
+						Sí, cancelar
+					</button>
+				</form>
+			</div>
+		</details>
+	</div>
+
+	<!-- Historial -->
+	<section th:unless="${#lists.isEmpty(historial)}" class="mt-12">
+		<h2 class="text-xl font-medium">Historial</h2>
+		<ol class="mt-4 space-y-4 border-l border-linea pl-5">
+			<li th:each="h : ${historial}" class="relative">
+				<span class="absolute top-1.5 -left-[1.6rem] size-2.5 rounded-full border-2 border-fondo bg-acento" aria-hidden="true"></span>
+				<p class="text-sm">
+					<span class="font-medium" th:text="${h.cambio.accion.etiqueta}">Reservado</span>
+					<span class="text-tenue" th:text="|por ${h.cambio.usuario != null ? h.cambio.usuario.nombre : 'el cliente'} · ${h.cuandoTexto}|">por Ana · mié 19/11 18:03</span>
+				</p>
+				<p th:if="${h.cambio.detalle}" class="mt-0.5 text-sm text-tenue" th:text="${h.cambio.detalle}">Antes: jue 20/11 10:00 con Juan.</p>
+			</li>
+		</ol>
+	</section>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('agenda')}"></nav>
+</body>
+</html>
