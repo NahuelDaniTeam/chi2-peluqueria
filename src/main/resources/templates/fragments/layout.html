@@ -41,8 +41,17 @@
 	</nav>
 </header>
 
-<!-- Mensaje después de una acción (flash "aviso") -->
-<p th:fragment="aviso" th:if="${aviso}" class="aviso mb-6" role="status" th:text="${aviso}">Listo.</p>
+<!-- Mensajes después de una acción (flash "aviso" si salió bien, "avisoError" si no) -->
+<div th:fragment="aviso" th:if="${aviso != null or avisoError != null}" class="mb-6 space-y-2">
+	<p th:if="${aviso}" class="aviso" role="status" th:text="${aviso}">Listo.</p>
+	<p th:if="${avisoError}" class="aviso-error" role="alert" th:text="${avisoError}">No se pudo.</p>
+</div>
+
+<!-- Volver a la pantalla anterior: ~{fragments/layout :: volver(@{/ruta}, 'Texto')} -->
+<a th:fragment="volver(destino, texto)" th:href="${destino}"
+   class="-ml-1 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-tenue hover:text-tinta">
+	<span aria-hidden="true">←</span> <span th:text="${texto}">Volver</span>
+</a>
 
 <!--
   Navegación inferior, como en una app. "activo" es la pestaña actual: inicio, equipo, negocios o cuenta.
@@ -61,6 +70,12 @@
 			<a th:href="@{/equipo}" class="pestana" th:classappend="${activo == 'equipo'} ? 'pestana-activa'">
 				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3c2.1.7 3.5 2.7 3.5 5.7"/></svg>
 				Equipo
+			</a>
+		</li>
+		<li th:if="${usuario.dueno}">
+			<a th:href="@{/barberia}" class="pestana" th:classappend="${activo == 'barberia'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.8 20 18M8.5 16.2 20 6"/></svg>
+				Barbería
 			</a>
 		</li>
 		<li th:if="${usuario.admin}">
