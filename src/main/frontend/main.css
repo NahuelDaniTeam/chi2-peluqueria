@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Tailwind escanea las plantillas Thymeleaf para generar solo las clases usadas */
+@source "../resources/templates";
+
+/*
+ * Tokens de marca, copiados de la web principal (repo chi2). PROVISORIOS hasta cerrar su
+ * PENDIENTES.md 10 (paleta, tipografías y logo): si allá cambian, actualizar este bloque y el
+ * <link> de fuentes en fragments/layout.html.
+ */
+@theme {
+  --color-fondo: #f7f4ee;        /* marfil */
+  --color-superficie: #fffdf9;   /* tarjetas */
+  --color-tinta: #191714;        /* texto principal */
+  --color-tenue: #6d675e;        /* texto secundario */
+  --color-linea: #e4ded3;        /* bordes y separadores */
+  --color-acento: #b5532c;       /* terracota: detalles, nunca bloques grandes */
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  ::selection {
+    background: var(--color-acento);
+    color: var(--color-superficie);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .contenedor {
+    @apply mx-auto max-w-6xl px-5 sm:px-8;
+  }
+
+  /* Rótulo de sección: "— QUÉ HACEMOS" */
+  .etiqueta {
+    @apply flex items-center gap-3 text-xs font-medium tracking-[0.2em] text-tenue uppercase;
+  }
+  .etiqueta::before {
+    content: "";
+    @apply h-px w-8 bg-acento;
+  }
+
+  .titulo-display {
+    @apply font-display leading-[1.02] tracking-tight text-balance;
+  }
+
+  .btn-principal {
+    @apply inline-flex items-center gap-2 rounded-full bg-tinta px-6 py-3.5 font-medium text-fondo transition hover:bg-acento;
+  }
+  .btn-claro {
+    @apply inline-flex items-center gap-2 rounded-full bg-fondo px-6 py-3.5 font-medium text-tinta transition hover:bg-superficie;
+  }
+
+  .link-flecha {
+    @apply inline-flex items-center gap-2 font-medium text-tinta underline decoration-linea decoration-2 underline-offset-8 transition hover:decoration-acento;
+  }
+
+  /* Textos [PENDIENTE] visibles pero claramente provisorios */
+  .pendiente {
+    @apply rounded bg-acento/10 px-1 text-acento;
+  }
+}

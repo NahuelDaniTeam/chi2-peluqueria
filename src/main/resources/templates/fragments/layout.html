@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${titulo} + ' · CHI2 Turnos'">CHI2 Turnos</title>
+	<meta name="theme-color" content="#f7f4ee">
+	<link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+	<link rel="apple-touch-icon" th:href="@{/apple-touch-icon.png}">
+	<!-- Tipografías de la marca, iguales a la web principal (repo chi2) -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap">
+	<link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+<!-- Isotipo χ² (logo de CHI2, igual al de la web principal). Toma el color del texto; el "2" va en gris cálido. -->
+<svg th:fragment="isotipo(clase)" th:class="${clase}" viewBox="10 11 44 41" fill="none" stroke-linecap="round" aria-hidden="true">
+	<g transform="translate(-3 0)">
+		<path d="M16 17C22 17 25 24 30 33S38 49 44 49" stroke="currentColor" stroke-width="4.5"/>
+		<path d="M17 48 41 18" stroke="currentColor" stroke-width="2.2"/>
+		<path d="M45.5 17.5C45.5 14.8 48 13.5 50.5 13.8 52.8 14.1 54 15.8 53.5 17.8 53 19.8 49.5 22 45.5 25.5H54"
+		      stroke="#a8a29e" stroke-width="2.2" stroke-linejoin="round"/>
+	</g>
+</svg>
+
+<!-- Logo del sistema: χ² | Turnos -->
+<a th:fragment="logo" th:href="@{/}" class="flex items-center gap-3 text-tinta" aria-label="CHI2 Turnos, inicio">
+	<svg th:replace="~{fragments/layout :: isotipo('h-7 w-auto')}"></svg>
+	<span class="h-5 w-px bg-linea" aria-hidden="true"></span>
+	<span class="font-display text-2xl leading-none tracking-wide">Turnos</span>
+</a>
+
+<header th:fragment="encabezado" class="sticky top-0 z-20 border-b border-linea/80 bg-fondo/85 backdrop-blur">
+	<nav class="contenedor flex items-center justify-between gap-6 py-4">
+		<a th:replace="~{fragments/layout :: logo}"></a>
+		<!-- Navegación del sistema: se completa en cada etapa (CLAUDE.md §3) -->
+	</nav>
+</header>
+
+<footer th:fragment="pie" class="mt-24 border-t border-linea">
+	<div class="contenedor py-8 text-sm text-tenue">
+		© <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> CHI2 · Sistema de turnos
+	</div>
+</footer>
+
+</body>
+</html>
