@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Días sin atender, del local o de un barbero (ver AusenciaController).
+  Modelo: titulo, descripcion, base (ruta para crear y borrar), volverA, volverTexto, pestana, hoy, ausencias, form.
+-->
+<head th:replace="~{fragments/layout :: head(${titulo})}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{${volverA}}, ${volverTexto})}"></a>
+	<div th:replace="~{fragments/layout :: aviso}"></div>
+	<h1 class="titulo-display mt-2 text-5xl" th:text="${titulo}">Días cerrados</h1>
+	<p class="mt-2 text-sm text-tenue" th:text="${descripcion}">Descripción</p>
+
+	<p th:if="${#lists.isEmpty(ausencias)}" class="mt-8 text-tenue">No hay ninguno cargado de acá en adelante.</p>
+	<ul class="mt-8 space-y-3">
+		<li th:each="a : ${ausencias}" class="tarjeta flex items-center justify-between gap-4">
+			<span class="min-w-0">
+				<span class="block font-medium" th:text="${a.fechasTexto}">lun 24/11</span>
+				<span th:if="${a.motivo}" class="mt-1 block truncate text-sm text-tenue" th:text="${a.motivo}">Feriado</span>
+			</span>
+			<form th:action="@{|${base}/${a.id}/borrar|}" method="post" class="shrink-0">
+				<button type="submit" class="btn-secundario">Borrar</button>
+			</form>
+		</li>
+	</ul>
+
+	<section class="mt-12">
+		<h2 class="text-xl font-medium">Agregar</h2>
+		<form th:action="@{${base}}" th:object="${form}" method="post" class="mt-6 space-y-5" novalidate>
+			<div class="grid grid-cols-2 gap-3">
+				<div>
+					<label for="desde" class="rotulo">Desde</label>
+					<input th:field="*{desde}" type="date" th:min="${hoy}" class="campo">
+				</div>
+				<div>
+					<label for="hasta" class="rotulo">Hasta</label>
+					<input th:field="*{hasta}" type="date" th:min="${hoy}" class="campo">
+				</div>
+			</div>
+			<p th:if="${#fields.hasErrors('desde')}" th:errors="*{desde}" class="error-campo"></p>
+			<p th:if="${#fields.hasErrors('hasta')}" th:errors="*{hasta}" class="error-campo"></p>
+			<p class="ayuda-campo">Si es un solo día, poné la misma fecha en los dos.</p>
+			<div>
+				<label for="motivo" class="rotulo">Motivo (opcional)</label>
+				<input th:field="*{motivo}" type="text" autocomplete="off" placeholder="Feriado, vacaciones…" class="campo">
+				<p th:if="${#fields.hasErrors('motivo')}" th:errors="*{motivo}" class="error-campo"></p>
+			</div>
+			<button type="submit" class="btn-principal w-full justify-center">Agregar</button>
+		</form>
+	</section>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion(${pestana})}"></nav>
+</body>
+</html>

@@ -4,7 +4,7 @@ Sistema que CHI2 vende a barberías y peluquerías para manejar sus turnos. Es u
 vendibles de la marca: cada uno vive en su propio repo, y la web principal (repo `chi2`) presenta
 los sistemas y lleva a cada cliente al suyo con un click.
 
-**Estado:** etapa 1 (barberías, usuarios y acceso) hecha. Sigue la etapa 2 (§3).
+**Estado:** etapas 1 y 2 hechas. Sigue la etapa 3, agenda y disponibilidad (§3).
 **Última actualización:** 2026-11-19
 
 > **Pendientes del equipo:** en [`PENDIENTES.md`](PENDIENTES.md). Claude los muestra al arrancar cada
@@ -38,7 +38,7 @@ Se construye por etapas, una por vez:
 
 0. Base del proyecto ✅
 1. Barberías, usuarios y acceso ✅
-2. Servicios, barberos y horarios
+2. Servicios, barberos y horarios ✅
 3. Agenda y disponibilidad
 4. Atención "tipo Uber" (empezar / finalizar, medio de pago, ausente, modificar, sin turno)
 5. Métricas por barbero y del negocio
@@ -69,8 +69,16 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 - `seguridad`: login, roles, "mantener la sesión iniciada" y el usuario de CHI2 inicial.
 - `negocio`: barberías (alta, suspensión) y su link (`Slugs`).
 - `usuario`: usuarios, equipo de cada barbería y "Mi cuenta".
+- `servicio`: catálogo de servicios de cada barbería (duración en minutos, precio en pesos sin centavos).
+- `barbero`: ficha de cada miembro: si atiende (`usuario.atiende`), qué servicios hace y precio especial.
+  Escucha los eventos `ServicioCreado` y `MiembroAgregado` para asignar servicios de entrada.
+- `horario`: horario semanal (`franja_horaria`, hasta dos turnos por día) y días sin atender
+  (`ausencia`). En las dos tablas, `usuario_id` nulo = del local. Un barbero sin franjas propias
+  trabaja en el horario del local; con franjas propias, la disponibilidad (etapa 3) tiene que
+  respetar también el horario del local.
 - `comun`: excepciones compartidas (`NoEncontradoException` → 404, `OperacionNoPermitidaException` → 400,
-  `DatoNoDisponibleException` → error al lado del campo del formulario).
+  `DatoNoDisponibleException` → error al lado del campo del formulario) y `Formatos` (precios,
+  duraciones y fechas a la argentina).
 - `api`: controladores REST bajo `/api`.
 - Cada funcionalidad nueva va en su propio paquete (ej. `servicio`, `turno`), con su entidad,
   repositorio, servicio y controladores.
@@ -80,7 +88,7 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 | Rol | Entra a | Ve |
 |---|---|---|
 | `ADMIN` (CHI2) | `/admin/**` | Todas las barberías. No pertenece a ninguna. |
-| `DUENO` | `/equipo/**` y todo lo de su barbería | Todo su negocio. |
+| `DUENO` | `/equipo/**`, `/barberia/**` y todo lo de su barbería | Todo su negocio. |
 | `BARBERO` | Lo común (`/`, `/cuenta`) | Solo lo suyo. |
 
 Las reglas por ruta están en `seguridad/SeguridadConfig`. Toda ruta nueva requiere sesión por defecto.

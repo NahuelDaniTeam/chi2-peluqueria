@@ -1,5 +1,7 @@
 package com.chi2.peluqueria.negocio;
 
+import com.chi2.peluqueria.horario.AusenciaService;
+import com.chi2.peluqueria.horario.HorarioService;
 import com.chi2.peluqueria.seguridad.UsuarioAutenticado;
 import com.chi2.peluqueria.servicio.ServicioRepository;
 
@@ -13,14 +15,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 class BarberiaController {
 
 	private final ServicioRepository servicios;
+	private final HorarioService horarios;
+	private final AusenciaService ausencias;
 
-	BarberiaController(ServicioRepository servicios) {
+	BarberiaController(ServicioRepository servicios, HorarioService horarios, AusenciaService ausencias) {
 		this.servicios = servicios;
+		this.horarios = horarios;
+		this.ausencias = ausencias;
 	}
 
 	@GetMapping("/barberia")
 	String ver(@AuthenticationPrincipal UsuarioAutenticado yo, Model model) {
 		model.addAttribute("cantidadServicios", servicios.countByNegocioIdAndActivoTrue(yo.getNegocioId()));
+		model.addAttribute("tieneHorario", horarios.localTieneHorario(yo.getNegocioId()));
+		model.addAttribute("cierres", ausencias.proximas(yo.getNegocioId(), null));
 		return "barberia/inicio";
 	}
 

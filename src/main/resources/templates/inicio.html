@@ -7,18 +7,27 @@
 	<p class="etiqueta" th:text="${usuario.rol.etiqueta}">Barbero</p>
 	<h1 class="titulo-display mt-4 text-5xl" th:text="|Hola, ${usuario.nombre}|">Hola</h1>
 
-	<section class="tarjeta mt-8">
-		<h2 class="font-medium">Tu agenda</h2>
-		<p class="mt-1 text-sm text-tenue">Acá vas a ver tus turnos del día. <span class="pendiente">Próximamente</span></p>
+	<!-- Puesta en marcha (solo el dueño, hasta que esté todo) -->
+	<section th:if="${usuario.dueno and !pasosCompletos}" class="tarjeta mt-8">
+		<h2 class="font-medium">Para empezar</h2>
+		<p class="mt-1 text-sm text-tenue">Con esto listo, la barbería puede empezar a dar turnos.</p>
+		<ol class="mt-4 space-y-1">
+			<li th:each="p : ${pasos}">
+				<a th:href="@{${p.enlace}}" class="-mx-2 flex min-h-11 items-center gap-3 rounded-xl px-2 hover:bg-fondo">
+					<span class="flex size-6 shrink-0 items-center justify-center rounded-full border text-xs"
+					      th:classappend="${p.hecho} ? 'border-tinta bg-tinta text-fondo' : 'border-linea'"
+					      th:text="${p.hecho} ? '✓' : ''" aria-hidden="true"></span>
+					<span th:classappend="${p.hecho} ? 'text-tenue line-through' : 'font-medium'" th:text="${p.texto}">Paso</span>
+					<span th:unless="${p.hecho}" class="ml-auto" aria-hidden="true">→</span>
+				</a>
+			</li>
+		</ol>
 	</section>
 
-	<a th:if="${usuario.dueno}" th:href="@{/equipo}" class="tarjeta mt-4 flex items-center justify-between gap-4 hover:border-tinta">
-		<span>
-			<span class="block font-medium">Tu equipo</span>
-			<span class="mt-1 block text-sm text-tenue">Sumá a tus barberos para que puedan entrar.</span>
-		</span>
-		<span aria-hidden="true">→</span>
-	</a>
+	<section class="tarjeta mt-4" th:classappend="${usuario.dueno and !pasosCompletos} ? '' : 'mt-8'">
+		<h2 class="font-medium">Tu agenda</h2>
+		<p class="mt-1 text-sm text-tenue">Acá vas a ver los turnos del día. <span class="pendiente">Próximamente</span></p>
+	</section>
 </main>
 <nav th:replace="~{fragments/layout :: navegacion('inicio')}"></nav>
 </body>

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.chi2.peluqueria.comun.Formatos;
+import com.chi2.peluqueria.horario.AusenciaService;
+import com.chi2.peluqueria.horario.HorarioService;
 import com.chi2.peluqueria.seguridad.UsuarioAutenticado;
 import com.chi2.peluqueria.usuario.EquipoService;
 import com.chi2.peluqueria.usuario.Usuario;
@@ -30,10 +32,15 @@ class PerfilBarberoController {
 
 	private final EquipoService equipo;
 	private final PerfilBarberoService perfiles;
+	private final HorarioService horarios;
+	private final AusenciaService ausencias;
 
-	PerfilBarberoController(EquipoService equipo, PerfilBarberoService perfiles) {
+	PerfilBarberoController(EquipoService equipo, PerfilBarberoService perfiles, HorarioService horarios,
+			AusenciaService ausencias) {
 		this.equipo = equipo;
 		this.perfiles = perfiles;
+		this.horarios = horarios;
+		this.ausencias = ausencias;
 	}
 
 	@GetMapping
@@ -87,6 +94,8 @@ class PerfilBarberoController {
 			Model model) {
 		model.addAttribute("miembro", equipo.buscar(yo.getNegocioId(), id));
 		model.addAttribute("servicios", servicios);
+		model.addAttribute("horarioPropio", horarios.tieneHorarioPropio(yo.getNegocioId(), id));
+		model.addAttribute("ausencias", ausencias.proximas(yo.getNegocioId(), id));
 		return "perfil";
 	}
 
