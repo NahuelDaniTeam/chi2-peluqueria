@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.chi2.peluqueria.comun.AccionBloqueadaException;
 import com.chi2.peluqueria.comun.Formatos;
 import com.chi2.peluqueria.horario.AusenciaService;
 import com.chi2.peluqueria.horario.HorarioService;
@@ -53,10 +54,15 @@ class PerfilBarberoController {
 	@PostMapping("/atiende")
 	String cambiarAtiende(@AuthenticationPrincipal UsuarioAutenticado yo, @PathVariable Long id,
 			@RequestParam boolean valor, RedirectAttributes redirect) {
-		Usuario usuario = perfiles.cambiarAtiende(yo.getNegocioId(), id, valor);
-		redirect.addFlashAttribute("aviso", valor
-				? usuario.getNombre() + " atiende clientes: va a aparecer en la agenda."
-				: usuario.getNombre() + " ya no atiende clientes.");
+		try {
+			Usuario usuario = perfiles.cambiarAtiende(yo.getNegocioId(), id, valor);
+			redirect.addFlashAttribute("aviso", valor
+					? usuario.getNombre() + " atiende clientes: va a aparecer en la agenda."
+					: usuario.getNombre() + " ya no atiende clientes.");
+		}
+		catch (AccionBloqueadaException e) {
+			redirect.addFlashAttribute("avisoError", e.getMessage());
+		}
 		return "redirect:/equipo/" + id;
 	}
 

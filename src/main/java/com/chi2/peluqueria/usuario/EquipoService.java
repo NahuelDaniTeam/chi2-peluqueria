@@ -29,6 +29,13 @@ public class EquipoService {
 	public record MiembroAgregado(Long negocioId, Long usuarioId) {
 	}
 
+	/**
+	 * Se publica antes de que alguien deje de aparecer en la agenda (baja, o deja de atender). Si tiene
+	 * turnos reservados, la agenda lo frena con {@code AccionBloqueadaException} (ver turno.AgendaService).
+	 */
+	public record SaleDeLaAgenda(Long negocioId, Long usuarioId, String nombre) {
+	}
+
 	private final UsuarioRepository usuarios;
 	private final NegocioRepository negocios;
 	private final PasswordEncoder passwordEncoder;
@@ -73,6 +80,7 @@ public class EquipoService {
 			throw new OperacionNoPermitidaException("Nadie puede darse de baja a sí mismo");
 		}
 		Usuario usuario = buscar(negocioId, usuarioId);
+		eventos.publishEvent(new SaleDeLaAgenda(negocioId, usuarioId, usuario.getNombre()));
 		usuario.darDeBaja();
 		return usuario;
 	}

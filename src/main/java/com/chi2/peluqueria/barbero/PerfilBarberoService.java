@@ -13,6 +13,7 @@ import com.chi2.peluqueria.usuario.EquipoService;
 import com.chi2.peluqueria.usuario.Usuario;
 import com.chi2.peluqueria.usuario.UsuarioRepository;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,13 +44,15 @@ public class PerfilBarberoService {
 	private final UsuarioRepository usuarios;
 	private final ServicioRepository servicios;
 	private final BarberoServicioRepository barberoServicios;
+	private final ApplicationEventPublisher eventos;
 
 	PerfilBarberoService(EquipoService equipo, UsuarioRepository usuarios, ServicioRepository servicios,
-			BarberoServicioRepository barberoServicios) {
+			BarberoServicioRepository barberoServicios, ApplicationEventPublisher eventos) {
 		this.equipo = equipo;
 		this.usuarios = usuarios;
 		this.servicios = servicios;
 		this.barberoServicios = barberoServicios;
+		this.eventos = eventos;
 	}
 
 	/** Todos los servicios activos del local, marcando cuáles hace este barbero. */
@@ -68,6 +71,9 @@ public class PerfilBarberoService {
 
 	public Usuario cambiarAtiende(Long negocioId, Long usuarioId, boolean atiende) {
 		Usuario usuario = equipo.buscar(negocioId, usuarioId);
+		if (!atiende && usuario.isAtiende()) {
+			eventos.publishEvent(new EquipoService.SaleDeLaAgenda(negocioId, usuarioId, usuario.getNombre()));
+		}
 		usuario.cambiarAtiende(atiende);
 		// Si empieza a atender y no tiene servicios, arranca haciendo todos (después se ajusta)
 		if (atiende && !barberoServicios.existsByNegocioIdAndUsuarioId(negocioId, usuarioId)) {
