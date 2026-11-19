@@ -5,7 +5,10 @@ vendibles de la marca: cada uno vive en su propio repo, y la web principal (repo
 los sistemas y lleva a cada cliente al suyo con un click.
 
 **Estado:** etapa 1 (barberías, usuarios y acceso) hecha. Sigue la etapa 2 (§3).
-**Última actualización:** 2026-11-18
+**Última actualización:** 2026-11-19
+
+> **Pendientes del equipo:** en [`PENDIENTES.md`](PENDIENTES.md). Claude los muestra al arrancar cada
+> sesión y los menciona en cada respuesta (§7).
 
 ---
 
@@ -168,3 +171,30 @@ las dos opciones y le pregunta al usuario cuál va.
 
 - Trabajamos con git worktrees: el stack de `git stash` es compartido entre todos los
   worktrees. No usar `git stash` / `git stash pop` a secas; preferir un commit WIP temporal.
+
+## 7. Pendientes (`PENDIENTES.md`)
+
+Los pendientes del equipo para este repo se registran **solo** en `PENDIENTES.md`, en la raíz, con
+secciones **"Para Nahuel"**, **"Para Daniel"**, **"Para los dos"** y **"Hechos"**. No se duplican en otros
+documentos: esos marcan `[PENDIENTE]` en el lugar y la tarea se anota en la hoja. Es la misma forma de
+trabajo que en el repo `chi2`, pero acá además se mencionan en **cada** respuesta.
+
+**Reglas para Claude:**
+
+1. **Identificar con quién hablás:** usá `git config user.name`. `NahuelLuna` es Nahuel y
+   `DanielPatolsky` es Daniel.
+2. **Al arrancar cada sesión**, antes de responder lo primero que te pidan, leé `PENDIENTES.md` (la versión
+   de `origin/main` si la rama local está atrasada) y mostrale al usuario en una lista corta:
+   - lo que tiene pendiente en su sección y en **"Para los dos"**;
+   - cuántos pendientes tiene el compañero, sin el detalle salvo que lo pida.
+3. **En cada respuesta** (no solo la primera de la sesión), cerrá con una línea corta sobre los pendientes,
+   por ejemplo: `Pendientes: tenés 2 (n.º 3 link "Ingresar", n.º 4 reserva desde el link) · Daniel: 1`.
+   Si lo que se acaba de hacer tiene que ver con un pendiente, decilo en esa línea. Si el usuario no tiene
+   ninguno, decí igual "Pendientes: no tenés ninguno · <compañero>: N".
+4. **Al terminar una tarea**, si cumple un pendiente, movelo a **Hechos** con la fecha. Si surge algo nuevo
+   que tiene que hacer el compañero o el usuario, cargalo en la sección correcta con el formato de la hoja
+   (contexto, qué entregar, dónde), **escrito para alguien que no estuvo en la conversación**. Avisale al
+   usuario qué agregaste o cerraste.
+5. **Cargar y cerrar pendientes** se hace en la misma rama que el trabajo que los genera o resuelve.
+6. Si el usuario pide "dejale un pendiente a Daniel" (o a Nahuel), se agrega en la sección del otro con
+   `cargado por <quien>, <fecha>`.
