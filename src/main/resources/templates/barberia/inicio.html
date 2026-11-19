@@ -4,6 +4,7 @@
 <body class="bg-fondo font-sans text-tinta antialiased">
 <header th:replace="~{fragments/layout :: encabezado}"></header>
 <main class="contenedor max-w-xl pb-28 pt-8">
+	<div th:replace="~{fragments/layout :: aviso}"></div>
 	<p class="etiqueta">Configuración</p>
 	<h1 class="titulo-display mt-4 text-5xl" th:text="${usuario.negocioNombre}">Barbería</h1>
 
@@ -11,8 +12,27 @@
 		<a th:href="@{/barberia/servicios}" class="tarjeta flex items-center justify-between gap-4 hover:border-tinta">
 			<span>
 				<span class="block font-medium">Servicios y precios</span>
-				<span class="mt-1 block text-sm text-tenue"
+				<span class="mt-1 block text-sm"
+				      th:classappend="${cantidadServicios == 0} ? 'text-acento' : 'text-tenue'"
 				      th:text="${cantidadServicios == 0} ? 'Todavía no cargaste ninguno.' : (${cantidadServicios == 1} ? '1 servicio' : |${cantidadServicios} servicios|)">3 servicios</span>
+			</span>
+			<span aria-hidden="true">→</span>
+		</a>
+
+		<a th:href="@{/barberia/horario}" class="tarjeta flex items-center justify-between gap-4 hover:border-tinta">
+			<span>
+				<span class="block font-medium">Horario de atención</span>
+				<span class="mt-1 block text-sm" th:classappend="${tieneHorario} ? 'text-tenue' : 'text-acento'"
+				      th:text="${tieneHorario} ? 'Cargado' : 'Todavía no lo cargaste.'">Cargado</span>
+			</span>
+			<span aria-hidden="true">→</span>
+		</a>
+
+		<a th:href="@{/barberia/cierres}" class="tarjeta flex items-center justify-between gap-4 hover:border-tinta">
+			<span class="min-w-0">
+				<span class="block font-medium">Días cerrados</span>
+				<span class="mt-1 block truncate text-sm text-tenue"
+				      th:text="${#lists.isEmpty(cierres)} ? 'Feriados y vacaciones del local.' : |Próximo: ${cierres[0].fechasTexto}|">Próximo: lun 24/11</span>
 			</span>
 			<span aria-hidden="true">→</span>
 		</a>

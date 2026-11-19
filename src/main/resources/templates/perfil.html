@@ -18,9 +18,29 @@
 		</div>
 		<form th:action="@{/equipo/{id}/atiende(id=${miembro.id})}" method="post" class="shrink-0">
 			<input type="hidden" name="valor" th:value="${!miembro.atiende}">
-			<button type="submit" class="btn-secundario" th:text="${miembro.atiende} ? 'No atiende' : 'Atiende'">No atiende</button>
+			<button type="submit" class="btn-secundario" th:text="${miembro.atiende} ? 'Desactivar' : 'Activar'">Desactivar</button>
 		</form>
 	</section>
+
+	<!-- Horario y ausencias -->
+	<div th:if="${miembro.atiende}" class="mt-3 space-y-3">
+		<a th:href="@{/equipo/{id}/horario(id=${miembro.id})}" class="tarjeta flex items-center justify-between gap-4 hover:border-tinta">
+			<span>
+				<span class="block font-medium">Horario</span>
+				<span class="mt-1 block text-sm text-tenue"
+				      th:text="${horarioPropio} ? 'Tiene un horario propio.' : 'Trabaja en el horario de la barbería.'">Trabaja en el horario de la barbería.</span>
+			</span>
+			<span aria-hidden="true">→</span>
+		</a>
+		<a th:href="@{/equipo/{id}/ausencias(id=${miembro.id})}" class="tarjeta flex items-center justify-between gap-4 hover:border-tinta">
+			<span class="min-w-0">
+				<span class="block font-medium">Ausencias</span>
+				<span class="mt-1 block truncate text-sm text-tenue"
+				      th:text="${#lists.isEmpty(ausencias)} ? 'Vacaciones y francos sueltos.' : |Próxima: ${ausencias[0].fechasTexto}|">Próxima: lun 24/11</span>
+			</span>
+			<span aria-hidden="true">→</span>
+		</a>
+	</div>
 
 	<!-- Servicios que hace -->
 	<section th:if="${miembro.atiende}" class="mt-12">

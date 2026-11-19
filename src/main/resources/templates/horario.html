@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Horario semanal, del local o de un barbero (ver HorarioController).
+  Modelo: titulo, descripcion, accion, volverA, volverTexto, pestana, form y, opcional, accionUsarLocal.
+-->
+<head th:replace="~{fragments/layout :: head(${titulo})}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{${volverA}}, ${volverTexto})}"></a>
+	<h1 class="titulo-display mt-2 text-5xl" th:text="${titulo}">Horario</h1>
+	<p class="mt-2 text-sm text-tenue" th:text="${descripcion}">Descripción</p>
+
+	<form th:action="@{${accion}}" th:object="${form}" method="post" class="mt-8 space-y-3" novalidate>
+		<p th:if="${#fields.hasGlobalErrors()}" class="aviso-error" role="alert"
+		   th:each="e : ${#fields.globalErrors()}" th:text="${e}">Marcá al menos un día.</p>
+
+		<div th:each="dia, i : *{dias}" class="tarjeta group">
+			<input type="hidden" th:field="*{dias[__${i.index}__].numero}">
+			<label class="flex min-h-11 items-center gap-3">
+				<input type="checkbox" th:field="*{dias[__${i.index}__].abierto}" class="dia-abierto size-5 accent-tinta">
+				<span class="font-medium" th:text="${dia.nombre}">Lunes</span>
+				<span class="ml-auto text-sm text-tenue group-has-[.dia-abierto:checked]:hidden">Cerrado</span>
+			</label>
+
+			<!-- Las horas se ven solo si el día está marcado -->
+			<div class="mt-3 hidden space-y-3 group-has-[.dia-abierto:checked]:block">
+				<div class="flex items-center gap-2">
+					<input type="time" th:field="*{dias[__${i.index}__].desde1}" step="300" class="campo"
+					       th:attr="aria-label=|${dia.nombre}, abre|">
+					<span class="shrink-0 text-sm text-tenue">a</span>
+					<input type="time" th:field="*{dias[__${i.index}__].hasta1}" step="300" class="campo"
+					       th:attr="aria-label=|${dia.nombre}, cierra|">
+				</div>
+				<p class="text-xs font-medium uppercase tracking-wider text-tenue">Segundo turno (opcional)</p>
+				<div class="flex items-center gap-2">
+					<input type="time" th:field="*{dias[__${i.index}__].desde2}" step="300" class="campo"
+					       th:attr="aria-label=|${dia.nombre}, segundo turno abre|">
+					<span class="shrink-0 text-sm text-tenue">a</span>
+					<input type="time" th:field="*{dias[__${i.index}__].hasta2}" step="300" class="campo"
+					       th:attr="aria-label=|${dia.nombre}, segundo turno cierra|">
+				</div>
+			</div>
+			<p th:if="${#fields.hasErrors('dias[__${i.index}__].abierto')}"
+			   th:errors="*{dias[__${i.index}__].abierto}" class="error-campo"></p>
+		</div>
+
+		<button type="submit" class="btn-principal w-full justify-center">Guardar horario</button>
+	</form>
+
+	<form th:if="${accionUsarLocal != null}" th:action="@{${accionUsarLocal}}" method="post" class="mt-4">
+		<button type="submit" class="btn-secundario w-full">Usar el horario de la barbería</button>
+	</form>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion(${pestana})}"></nav>
+</body>
+</html>

@@ -1,5 +1,7 @@
 package com.chi2.peluqueria.comun;
 
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -29,6 +31,13 @@ public final class Formatos {
 			return Optional.empty();
 		}
 		return Optional.of(Integer.parseInt(limpio));
+	}
+
+	/** "lun 24/11"; si no es de este año, "lun 24/11/2027". */
+	public static String fechaCorta(LocalDate fecha) {
+		String dia = fecha.getDayOfWeek().getDisplayName(TextStyle.SHORT, ARGENTINA).replace(".", "");
+		String texto = dia + " " + fecha.getDayOfMonth() + "/" + fecha.getMonthValue();
+		return fecha.getYear() == LocalDate.now().getYear() ? texto : texto + "/" + fecha.getYear();
 	}
 
 	/** 30 → "30 min", 60 → "1 h", 90 → "1 h 30 min" */

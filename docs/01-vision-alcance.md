@@ -41,7 +41,7 @@ La barbería entra al sistema desde la web principal de CHI2 (repo `chi2`), con 
 
 ### 4.2 Servicios
 
-- Catálogo propio de cada barbería, que carga a mano **el dueño**.
+- Catálogo propio de cada barbería, que carga a mano **el dueño** (a confirmar si los barberos también pueden).
 - Cada servicio tiene nombre, duración y precio. Las combinaciones son servicios propios, con su
   duración y su precio (ej. *Corte* 30 min, *Corte + barba* 45 min, *Corte + tintura* 2 h).
 - **La duración y el precio son del local**, no del barbero.
@@ -107,11 +107,11 @@ Cada etapa se entrega completa y probada antes de pasar a la siguiente (una o va
 |---|---|---|---|
 | 0 | **Base del proyecto** | Spring Boot, Postgres, Tailwind, tests, marca de CHI2. | ✅ Hecha. |
 | 1 | **Barberías, usuarios y acceso** | Modelo multi-negocio, roles dueño y barbero, login con sesión que se mantiene en el celular, alta y suspensión de barberías por CHI2, equipo del dueño (sumar, dar de baja, reactivar), cambio de contraseña. | ✅ Hecha. Un dueño entra y ve solo su barbería; un barbero ve solo lo suyo. |
-| 2 | **Servicios, barberos y horarios** | §4.1 y §4.2. | El dueño carga su barbería completa desde el celular. |
+| 2 | **Servicios, barberos y horarios** | §4.1 y §4.2: catálogo con duración y precio, ficha de cada barbero (atiende o no, servicios que hace, precio especial), horario del local y propio de cada barbero (hasta dos turnos por día), días cerrados del local y ausencias de cada barbero. La foto del barbero pasa a la etapa 6, que es donde la ve el cliente. | ✅ Hecha. El dueño carga su barbería completa desde el celular. |
 | 3 | **Agenda y disponibilidad** | §4.3: turnos cargados por la barbería, asignación de "cualquiera", cancelar y reprogramar. | La barbería maneja su agenda en el sistema sin superposiciones. |
 | 4 | **Atención tipo Uber** | §4.4: empezar, finalizar con medio de pago, ausente, modificar un servicio hecho, atención sin turno. | Cada turno termina finalizado con su cobro marcado, o cancelado / ausente. |
 | 5 | **Métricas** | §4.5. | Cada barbero y el dueño ven sus números del mes. |
-| 6 | **Reserva online con aviso por WhatsApp** | §4.6. | El cliente reserva solo desde el link y a la barbería le llega el WhatsApp. |
+| 6 | **Reserva online con aviso por WhatsApp** | §4.6, y la foto de cada barbero para que el cliente elija. | El cliente reserva solo desde el link y a la barbería le llega el WhatsApp. |
 
 **v1 vendible: etapas 1 a 6.**
 
