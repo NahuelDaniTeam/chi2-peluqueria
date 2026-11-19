@@ -10,13 +10,13 @@
 	<ul class="mt-8 space-y-3">
 		<li th:each="m : ${miembros}" class="tarjeta flex items-center justify-between gap-4"
 		    th:classappend="${m.activo} ? '' : 'opacity-60'">
-			<div class="min-w-0">
-				<p class="truncate font-medium" th:text="${m.nombre}">Nombre</p>
+			<a th:href="@{/equipo/{id}(id=${m.id})}" class="group min-w-0 flex-1">
+				<p class="truncate font-medium group-hover:underline" th:text="${m.nombre}">Nombre</p>
 				<p class="truncate text-sm text-tenue" th:text="${m.email}">email</p>
 				<p class="mt-1 text-xs font-medium uppercase tracking-wider text-tenue">
-					<span th:text="${m.rol.etiqueta}">Barbero</span><span th:unless="${m.activo}"> · Dado de baja</span>
+					<span th:text="${m.rol.etiqueta}">Barbero</span><span th:if="${m.rol.name() == 'DUENO' and m.atiende}"> · Atiende</span><span th:unless="${m.activo}"> · Dado de baja</span>
 				</p>
-			</div>
+			</a>
 			<span th:if="${m.id == usuario.id}" class="shrink-0 text-sm text-tenue">Vos</span>
 			<form th:if="${m.id != usuario.id and m.activo}" th:action="@{/equipo/{id}/baja(id=${m.id})}" method="post" class="shrink-0">
 				<button type="submit" class="btn-secundario">Dar de baja</button>

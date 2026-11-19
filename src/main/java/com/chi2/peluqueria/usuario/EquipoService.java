@@ -8,6 +8,7 @@ import com.chi2.peluqueria.comun.NoEncontradoException;
 import com.chi2.peluqueria.comun.OperacionNoPermitidaException;
 import com.chi2.peluqueria.negocio.NegocioRepository;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,14 +25,27 @@ public class EquipoService {
 			.comparing((Usuario u) -> u.getRol() == Rol.DUENO ? 0 : 1)
 			.thenComparing(Usuario::getNombre, String.CASE_INSENSITIVE_ORDER);
 
+	/** Se publica al sumar a alguien, para asignarle los servicios si atiende (ver barbero.PerfilBarberoService). */
+	public record MiembroAgregado(Long negocioId, Long usuarioId) {
+	}
+
 	private final UsuarioRepository usuarios;
 	private final NegocioRepository negocios;
 	private final PasswordEncoder passwordEncoder;
+	private final ApplicationEventPublisher eventos;
 
-	EquipoService(UsuarioRepository usuarios, NegocioRepository negocios, PasswordEncoder passwordEncoder) {
+	EquipoService(UsuarioRepository usuarios, NegocioRepository negocios, PasswordEncoder passwordEncoder,
+			ApplicationEventPublisher eventos) {
 		this.usuarios = usuarios;
 		this.negocios = negocios;
 		this.passwordEncoder = passwordEncoder;
+		this.eventos = eventos;
+	}
+
+	/** Un miembro de la barbería (404 si no existe o es de otra barbería). */
+	@Transactional(readOnly = true)
+	public Usuario buscar(Long negocioId, Long usuarioId) {
+		return usuarios.findByIdAndNegocioId(usuarioId, negocioId).orElseThrow(NoEncontradoException::new);
 	}
 
 	@Transactional(readOnly = true)
@@ -47,8 +61,10 @@ public class EquipoService {
 		if (usuarios.existsByEmail(email)) {
 			throw new DatoNoDisponibleException("email", "Ya hay una cuenta con ese email.");
 		}
-		return usuarios.save(Usuario.miembro(negocios.getReferenceById(negocioId), form.getNombre(), email,
+		Usuario nuevo = usuarios.save(Usuario.miembro(negocios.getReferenceById(negocioId), form.getNombre(), email,
 				passwordEncoder.encode(form.getContrasena()), form.getRol()));
+		eventos.publishEvent(new MiembroAgregado(negocioId, nuevo.getId()));
+		return nuevo;
 	}
 
 	/** Da de baja a alguien del equipo: no puede volver a entrar hasta que lo reactiven. */
@@ -65,10 +81,6 @@ public class EquipoService {
 		Usuario usuario = buscar(negocioId, usuarioId);
 		usuario.reactivar();
 		return usuario;
-	}
-
-	private Usuario buscar(Long negocioId, Long usuarioId) {
-		return usuarios.findByIdAndNegocioId(usuarioId, negocioId).orElseThrow(NoEncontradoException::new);
 	}
 
 }
