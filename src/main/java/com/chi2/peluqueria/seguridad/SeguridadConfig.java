@@ -27,7 +27,7 @@ class SeguridadConfig {
 						.requestMatchers("/login", "/error", "/css/**", "/favicon.svg", "/apple-touch-icon.png",
 								"/actuator/health", "/actuator/health/**").permitAll()
 						.requestMatchers("/admin/**").hasRole("ADMIN")
-						.requestMatchers("/equipo/**").hasRole("DUENO")
+						.requestMatchers("/equipo/**", "/barberia/**").hasRole("DUENO")
 						.anyRequest().authenticated())
 				.formLogin(login -> login
 						.loginPage("/login")

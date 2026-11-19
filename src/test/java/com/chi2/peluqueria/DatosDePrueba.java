@@ -6,6 +6,8 @@ import com.chi2.peluqueria.negocio.Negocio;
 import com.chi2.peluqueria.negocio.NegocioRepository;
 import com.chi2.peluqueria.negocio.Slugs;
 import com.chi2.peluqueria.seguridad.UsuarioAutenticado;
+import com.chi2.peluqueria.servicio.Servicio;
+import com.chi2.peluqueria.servicio.ServicioRepository;
 import com.chi2.peluqueria.usuario.Rol;
 import com.chi2.peluqueria.usuario.Usuario;
 import com.chi2.peluqueria.usuario.UsuarioRepository;
@@ -21,12 +23,15 @@ public class DatosDePrueba {
 
 	private final NegocioRepository negocios;
 	private final UsuarioRepository usuarios;
+	private final ServicioRepository servicios;
 	private final PasswordEncoder passwordEncoder;
 	private String contrasenaCodificada;
 
-	DatosDePrueba(NegocioRepository negocios, UsuarioRepository usuarios, PasswordEncoder passwordEncoder) {
+	DatosDePrueba(NegocioRepository negocios, UsuarioRepository usuarios, ServicioRepository servicios,
+			PasswordEncoder passwordEncoder) {
 		this.negocios = negocios;
 		this.usuarios = usuarios;
+		this.servicios = servicios;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -40,6 +45,10 @@ public class DatosDePrueba {
 
 	public Usuario barbero(Negocio negocio, String nombre) {
 		return miembro(negocio, nombre, Rol.BARBERO);
+	}
+
+	public Servicio servicio(Negocio negocio, String nombre, int duracionMinutos, int precio) {
+		return servicios.save(new Servicio(negocio.getId(), nombre, duracionMinutos, precio));
 	}
 
 	/** Lo que usa {@code with(user(...))} para simular una sesión iniciada. */

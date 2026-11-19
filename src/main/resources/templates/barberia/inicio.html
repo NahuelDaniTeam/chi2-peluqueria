@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Barbería')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-8">
+	<p class="etiqueta">Configuración</p>
+	<h1 class="titulo-display mt-4 text-5xl" th:text="${usuario.negocioNombre}">Barbería</h1>
+
+	<div class="mt-8 space-y-3">
+		<a th:href="@{/barberia/servicios}" class="tarjeta flex items-center justify-between gap-4 hover:border-tinta">
+			<span>
+				<span class="block font-medium">Servicios y precios</span>
+				<span class="mt-1 block text-sm text-tenue"
+				      th:text="${cantidadServicios == 0} ? 'Todavía no cargaste ninguno.' : (${cantidadServicios == 1} ? '1 servicio' : |${cantidadServicios} servicios|)">3 servicios</span>
+			</span>
+			<span aria-hidden="true">→</span>
+		</a>
+	</div>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('barberia')}"></nav>
+</body>
+</html>
