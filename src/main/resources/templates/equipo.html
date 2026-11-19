@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Equipo')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-8">
+	<p th:replace="~{fragments/layout :: aviso}"></p>
+	<h1 class="titulo-display text-5xl">Equipo</h1>
+
+	<ul class="mt-8 space-y-3">
+		<li th:each="m : ${miembros}" class="tarjeta flex items-center justify-between gap-4"
+		    th:classappend="${m.activo} ? '' : 'opacity-60'">
+			<div class="min-w-0">
+				<p class="truncate font-medium" th:text="${m.nombre}">Nombre</p>
+				<p class="truncate text-sm text-tenue" th:text="${m.email}">email</p>
+				<p class="mt-1 text-xs font-medium uppercase tracking-wider text-tenue">
+					<span th:text="${m.rol.etiqueta}">Barbero</span><span th:unless="${m.activo}"> · Dado de baja</span>
+				</p>
+			</div>
+			<span th:if="${m.id == usuario.id}" class="shrink-0 text-sm text-tenue">Vos</span>
+			<form th:if="${m.id != usuario.id and m.activo}" th:action="@{/equipo/{id}/baja(id=${m.id})}" method="post" class="shrink-0">
+				<button type="submit" class="btn-secundario">Dar de baja</button>
+			</form>
+			<form th:if="${m.id != usuario.id and !m.activo}" th:action="@{/equipo/{id}/alta(id=${m.id})}" method="post" class="shrink-0">
+				<button type="submit" class="btn-secundario">Reactivar</button>
+			</form>
+		</li>
+	</ul>
+
+	<section class="mt-12">
+		<h2 class="text-xl font-medium">Sumar a alguien</h2>
+		<p class="mt-1 text-sm text-tenue">Pasale el email y la contraseña inicial; después la puede cambiar desde "Mi cuenta".</p>
+		<form th:action="@{/equipo}" th:object="${form}" method="post" class="mt-6 space-y-5" novalidate>
+			<div>
+				<label for="nombre" class="rotulo">Nombre</label>
+				<input th:field="*{nombre}" type="text" autocomplete="off" class="campo">
+				<p th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="email" class="rotulo">Email</label>
+				<input th:field="*{email}" type="email" inputmode="email" autocapitalize="none" autocomplete="off" class="campo">
+				<p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="contrasena" class="rotulo">Contraseña inicial</label>
+				<input th:field="*{contrasena}" type="text" autocomplete="off" class="campo">
+				<p class="ayuda-campo">Mínimo 8 caracteres.</p>
+				<p th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="rol" class="rotulo">Rol</label>
+				<select th:field="*{rol}" class="campo">
+					<option th:each="r : ${roles}" th:value="${r}" th:text="${r.etiqueta}">Barbero</option>
+				</select>
+				<p class="ayuda-campo">El dueño o encargado ve todo el negocio; el barbero, solo lo suyo.</p>
+				<p th:if="${#fields.hasErrors('rol')}" th:errors="*{rol}" class="error-campo"></p>
+			</div>
+			<button type="submit" class="btn-principal w-full justify-center">Sumar al equipo</button>
+		</form>
+	</section>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('equipo')}"></nav>
+</body>
+</html>

@@ -4,7 +4,7 @@ Sistema que CHI2 vende a barberías y peluquerías para manejar sus turnos. Es u
 vendibles de la marca: cada uno vive en su propio repo, y la web principal (repo `chi2`) presenta
 los sistemas y lleva a cada cliente al suyo con un click.
 
-**Estado:** estructura base (etapa 0). Alcance de la v1 en borrador (§3).
+**Estado:** etapa 1 (barberías, usuarios y acceso) hecha. Sigue la etapa 2 (§3).
 **Última actualización:** 2026-11-18
 
 ---
@@ -34,7 +34,7 @@ El detalle está en [`docs/01-vision-alcance.md`](docs/01-vision-alcance.md) (bo
 Se construye por etapas, una por vez:
 
 0. Base del proyecto ✅
-1. Barberías, usuarios y acceso
+1. Barberías, usuarios y acceso ✅
 2. Servicios, barberos y horarios
 3. Agenda y disponibilidad
 4. Atención "tipo Uber" (empezar / finalizar, medio de pago, ausente, modificar, sin turno)
@@ -62,10 +62,41 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 
 ### Estructura de paquetes (`com.chi2.peluqueria`)
 
-- `pagina`: controladores de pantallas Thymeleaf.
+- `pagina`: login y pantalla de inicio.
+- `seguridad`: login, roles, "mantener la sesión iniciada" y el usuario de CHI2 inicial.
+- `negocio`: barberías (alta, suspensión) y su link (`Slugs`).
+- `usuario`: usuarios, equipo de cada barbería y "Mi cuenta".
+- `comun`: excepciones compartidas (`NoEncontradoException` → 404, `OperacionNoPermitidaException` → 400,
+  `DatoNoDisponibleException` → error al lado del campo del formulario).
 - `api`: controladores REST bajo `/api`.
-- Cada funcionalidad nueva va en su propio paquete (ej. `turno`, `negocio`), con su entidad,
+- Cada funcionalidad nueva va en su propio paquete (ej. `servicio`, `turno`), con su entidad,
   repositorio, servicio y controladores.
+
+### Roles y acceso
+
+| Rol | Entra a | Ve |
+|---|---|---|
+| `ADMIN` (CHI2) | `/admin/**` | Todas las barberías. No pertenece a ninguna. |
+| `DUENO` | `/equipo/**` y todo lo de su barbería | Todo su negocio. |
+| `BARBERO` | Lo común (`/`, `/cuenta`) | Solo lo suyo. |
+
+Las reglas por ruta están en `seguridad/SeguridadConfig`. Toda ruta nueva requiere sesión por defecto.
+
+### Aislamiento entre barberías (regla para todo el código)
+
+- Toda tabla con datos de una barbería lleva `negocio_id`.
+- Los controladores reciben el usuario con `@AuthenticationPrincipal UsuarioAutenticado` y pasan
+  `getNegocioId()` al servicio. **Nunca** se busca un dato de una barbería solo por su id: siempre por
+  id **y** negocio (ej. `findByIdAndNegocioId`). Si no aparece, `NoEncontradoException` (404), sin
+  distinguir "no existe" de "es de otra barbería".
+- Cada funcionalidad nueva suma un test que pruebe que una barbería no ve ni toca datos de otra
+  (ver `usuario/EquipoTest`).
+
+### Tests
+
+Los tests de punta a punta extienden `PruebaIntegracion` (app completa + Postgres real + MockMvc, cada
+test en una transacción que se deshace) y arman datos con `DatosDePrueba`. Todos comparten la misma
+configuración para levantar un solo contenedor.
 
 ## 5. Cómo correrlo
 
@@ -76,6 +107,16 @@ Requisitos: JDK 21 y Docker Desktop abierto (Postgres corre en un contenedor).
 ./mvnw test              # corre los tests (los que usan la base levantan Postgres con Testcontainers)
 npm run watch:css        # opcional: recompila Tailwind en vivo mientras se editan plantillas
 ```
+
+**Primer usuario:** al arrancar se crea el usuario de CHI2 si están las variables `CHI2_ADMIN_EMAIL` y
+`CHI2_ADMIN_CONTRASENA`. Con él se entra a `/admin/negocios` y se dan de alta las barberías. En PowerShell:
+
+```powershell
+$env:CHI2_ADMIN_EMAIL = "admin@chi2.local"; $env:CHI2_ADMIN_CONTRASENA = "una-clave-larga"; ./mvnw spring-boot:run
+```
+
+**En producción** además hay que definir `CHI2_CLAVE_RECORDARME` (una clave larga y secreta, propia del
+servidor): firma la cookie de "mantener la sesión iniciada".
 
 ## 6. Equipo y forma de trabajo
 

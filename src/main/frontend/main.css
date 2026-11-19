@@ -67,4 +67,44 @@
   .pendiente {
     @apply rounded bg-acento/10 px-1 text-acento;
   }
+
+  /* ---- Componentes propios del sistema (no están en la web principal) ---- */
+
+  /* Formularios: 16px de texto para que el celular no haga zoom al tocar el campo */
+  .rotulo {
+    @apply mb-2 block text-sm font-medium text-tinta;
+  }
+  .campo {
+    @apply block min-h-12 w-full rounded-xl border border-linea bg-superficie px-4 py-3 text-base text-tinta placeholder:text-tenue/60 focus:border-tinta focus:outline-none;
+  }
+  .ayuda-campo {
+    @apply mt-1.5 text-sm text-tenue;
+  }
+  .error-campo {
+    @apply mt-1.5 text-sm font-medium text-acento;
+  }
+
+  .tarjeta {
+    @apply rounded-2xl border border-linea bg-superficie p-5;
+  }
+
+  .btn-secundario {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full border border-linea px-4 text-sm font-medium text-tinta transition hover:border-tinta;
+  }
+
+  /* Mensajes después de una acción */
+  .aviso {
+    @apply rounded-xl bg-tinta px-4 py-3 text-sm text-fondo;
+  }
+  .aviso-error {
+    @apply rounded-xl bg-acento/10 px-4 py-3 text-sm font-medium text-acento;
+  }
+
+  /* Barra de navegación inferior (celular primero) */
+  .pestana {
+    @apply flex min-h-16 min-w-20 flex-col items-center justify-center gap-1 text-xs font-medium text-tenue transition hover:text-tinta;
+  }
+  .pestana-activa {
+    @apply text-tinta;
+  }
 }

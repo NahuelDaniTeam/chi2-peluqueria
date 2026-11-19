@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Algo salió mal')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<main class="contenedor flex min-h-dvh flex-col justify-center py-12">
+	<div class="mx-auto w-full max-w-sm">
+		<a th:replace="~{fragments/layout :: logo}"></a>
+		<p class="etiqueta mt-10" th:text="${status}">404</p>
+		<h1 class="titulo-display mt-4 text-5xl" th:switch="${status}">
+			<span th:case="403">No tenés acceso a esta página</span>
+			<span th:case="404">No encontramos lo que buscabas</span>
+			<span th:case="*">Algo salió mal</span>
+		</h1>
+		<a th:href="@{/}" class="btn-principal mt-8 w-full justify-center">Volver al inicio</a>
+	</div>
+</main>
+</body>
+</html>

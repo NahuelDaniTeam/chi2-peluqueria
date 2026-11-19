@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Entrar')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<main class="contenedor flex min-h-dvh flex-col justify-center py-12">
+	<div class="mx-auto w-full max-w-sm">
+		<a th:replace="~{fragments/layout :: logo}"></a>
+		<h1 class="titulo-display mt-10 text-5xl">Entrá a tu barbería</h1>
+
+		<p th:if="${param.error}" class="aviso-error mt-6" role="alert">El email o la contraseña no son correctos.</p>
+		<p th:if="${param.salir}" class="aviso mt-6" role="status">Cerraste la sesión.</p>
+
+		<form th:action="@{/login}" method="post" class="mt-8 space-y-5">
+			<div>
+				<label for="email" class="rotulo">Email</label>
+				<input id="email" name="email" type="email" inputmode="email" autocomplete="username"
+				       autocapitalize="none" required autofocus class="campo">
+			</div>
+			<div>
+				<label for="contrasena" class="rotulo">Contraseña</label>
+				<input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required class="campo">
+			</div>
+			<label class="flex min-h-11 items-center gap-3 text-sm text-tenue">
+				<input type="checkbox" name="recordarme" checked class="size-5 accent-tinta">
+				Mantener la sesión iniciada
+			</label>
+			<button type="submit" class="btn-principal w-full justify-center">Entrar</button>
+		</form>
+	</div>
+</main>
+</body>
+</html>

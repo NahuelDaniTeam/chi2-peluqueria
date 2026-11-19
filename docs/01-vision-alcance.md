@@ -106,7 +106,7 @@ Cada etapa se entrega completa y probada antes de pasar a la siguiente (una o va
 | # | Etapa | Incluye | Lista cuando… |
 |---|---|---|---|
 | 0 | **Base del proyecto** | Spring Boot, Postgres, Tailwind, tests, marca de CHI2. | ✅ Hecha. |
-| 1 | **Barberías, usuarios y acceso** | Modelo multi-negocio, roles dueño y barbero, login, alta de barberías por CHI2. | Un dueño entra y ve solo su barbería; un barbero ve solo lo suyo. |
+| 1 | **Barberías, usuarios y acceso** | Modelo multi-negocio, roles dueño y barbero, login con sesión que se mantiene en el celular, alta y suspensión de barberías por CHI2, equipo del dueño (sumar, dar de baja, reactivar), cambio de contraseña. | ✅ Hecha. Un dueño entra y ve solo su barbería; un barbero ve solo lo suyo. |
 | 2 | **Servicios, barberos y horarios** | §4.1 y §4.2. | El dueño carga su barbería completa desde el celular. |
 | 3 | **Agenda y disponibilidad** | §4.3: turnos cargados por la barbería, asignación de "cualquiera", cancelar y reprogramar. | La barbería maneja su agenda en el sistema sin superposiciones. |
 | 4 | **Atención tipo Uber** | §4.4: empezar, finalizar con medio de pago, ausente, modificar un servicio hecho, atención sin turno. | Cada turno termina finalizado con su cobro marcado, o cancelado / ausente. |

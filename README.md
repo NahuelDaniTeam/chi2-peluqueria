@@ -9,4 +9,7 @@ Requisitos: JDK 21 y Docker Desktop.
 ./mvnw test
 ```
 
+Para tener el primer usuario (CHI2), definí `CHI2_ADMIN_EMAIL` y `CHI2_ADMIN_CONTRASENA` antes de
+arrancar (ver `CLAUDE.md` §5).
+
 Contexto, decisiones y reglas de trabajo: ver [`CLAUDE.md`](CLAUDE.md).

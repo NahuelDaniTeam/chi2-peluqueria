@@ -2,7 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(titulo)">
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<title th:text="${titulo} + ' · CHI2 Turnos'">CHI2 Turnos</title>
 	<meta name="theme-color" content="#f7f4ee">
 	<link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
@@ -26,24 +26,57 @@
 </svg>
 
 <!-- Logo del sistema: χ² | Turnos -->
-<a th:fragment="logo" th:href="@{/}" class="flex items-center gap-3 text-tinta" aria-label="CHI2 Turnos, inicio">
+<a th:fragment="logo" th:href="@{/}" class="flex shrink-0 items-center gap-3 text-tinta" aria-label="CHI2 Turnos, inicio">
 	<svg th:replace="~{fragments/layout :: isotipo('h-7 w-auto')}"></svg>
 	<span class="h-5 w-px bg-linea" aria-hidden="true"></span>
 	<span class="font-display text-2xl leading-none tracking-wide">Turnos</span>
 </a>
 
+<!-- Encabezado: logo y, con sesión iniciada, la barbería -->
 <header th:fragment="encabezado" class="sticky top-0 z-20 border-b border-linea/80 bg-fondo/85 backdrop-blur">
-	<nav class="contenedor flex items-center justify-between gap-6 py-4">
+	<nav class="contenedor flex items-center justify-between gap-4 py-4">
 		<a th:replace="~{fragments/layout :: logo}"></a>
-		<!-- Navegación del sistema: se completa en cada etapa (CLAUDE.md §3) -->
+		<span th:if="${usuario != null}" class="truncate text-sm font-medium text-tenue"
+		      th:text="${usuario.negocioNombre != null ? usuario.negocioNombre : 'CHI2'}">Barbería</span>
 	</nav>
 </header>
 
-<footer th:fragment="pie" class="mt-24 border-t border-linea">
-	<div class="contenedor py-8 text-sm text-tenue">
-		© <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> CHI2 · Sistema de turnos
-	</div>
-</footer>
+<!-- Mensaje después de una acción (flash "aviso") -->
+<p th:fragment="aviso" th:if="${aviso}" class="aviso mb-6" role="status" th:text="${aviso}">Listo.</p>
+
+<!--
+  Navegación inferior, como en una app. "activo" es la pestaña actual: inicio, equipo, negocios o cuenta.
+  Cada pantalla con navegación deja lugar abajo con pb-28 en el <main>.
+-->
+<nav th:fragment="navegacion(activo)" th:if="${usuario != null}" aria-label="Secciones"
+     class="fixed inset-x-0 bottom-0 z-20 border-t border-linea bg-superficie/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+	<ul class="mx-auto flex max-w-md justify-around">
+		<li th:unless="${usuario.admin}">
+			<a th:href="@{/}" class="pestana" th:classappend="${activo == 'inicio'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+				Inicio
+			</a>
+		</li>
+		<li th:if="${usuario.dueno}">
+			<a th:href="@{/equipo}" class="pestana" th:classappend="${activo == 'equipo'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3c2.1.7 3.5 2.7 3.5 5.7"/></svg>
+				Equipo
+			</a>
+		</li>
+		<li th:if="${usuario.admin}">
+			<a th:href="@{/admin/negocios}" class="pestana" th:classappend="${activo == 'negocios'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18M4 9l1.5-5h13L20 9M5 9v11h14V9M9 20v-6h6v6"/></svg>
+				Barberías
+			</a>
+		</li>
+		<li>
+			<a th:href="@{/cuenta}" class="pestana" th:classappend="${activo == 'cuenta'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+				Mi cuenta
+			</a>
+		</li>
+	</ul>
+</nav>
 
 </body>
 </html>

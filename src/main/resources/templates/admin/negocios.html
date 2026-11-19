@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Barberías')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-8">
+	<p th:replace="~{fragments/layout :: aviso}"></p>
+	<p class="etiqueta">CHI2</p>
+	<h1 class="titulo-display mt-4 text-5xl">Barberías</h1>
+
+	<p th:if="${#lists.isEmpty(negocios)}" class="mt-8 text-tenue">Todavía no hay barberías. Cargá la primera acá abajo.</p>
+	<ul class="mt-8 space-y-3">
+		<li th:each="n : ${negocios}" class="tarjeta flex items-center justify-between gap-4"
+		    th:classappend="${n.activo} ? '' : 'opacity-60'">
+			<div class="min-w-0">
+				<p class="truncate font-medium" th:text="${n.nombre}">Barbería</p>
+				<p class="truncate text-sm text-tenue" th:text="|/${n.slug}|">/barberia</p>
+				<p th:unless="${n.activo}" class="mt-1 text-xs font-medium uppercase tracking-wider text-acento">Suspendida</p>
+			</div>
+			<form th:if="${n.activo}" th:action="@{/admin/negocios/{id}/suspender(id=${n.id})}" method="post" class="shrink-0">
+				<button type="submit" class="btn-secundario">Suspender</button>
+			</form>
+			<form th:unless="${n.activo}" th:action="@{/admin/negocios/{id}/reactivar(id=${n.id})}" method="post" class="shrink-0">
+				<button type="submit" class="btn-secundario">Reactivar</button>
+			</form>
+		</li>
+	</ul>
+
+	<section class="mt-12">
+		<h2 class="text-xl font-medium">Nueva barbería</h2>
+		<form th:action="@{/admin/negocios}" th:object="${form}" method="post" class="mt-6 space-y-5" novalidate>
+			<div>
+				<label for="nombre" class="rotulo">Nombre de la barbería</label>
+				<input th:field="*{nombre}" type="text" autocomplete="off" class="campo">
+				<p th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="slug" class="rotulo">Link (opcional)</label>
+				<input th:field="*{slug}" type="text" autocapitalize="none" autocomplete="off" placeholder="barberia-juan" class="campo">
+				<p class="ayuda-campo">Si lo dejás vacío, se arma con el nombre.</p>
+				<p th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="duenoNombre" class="rotulo">Nombre del dueño</label>
+				<input th:field="*{duenoNombre}" type="text" autocomplete="off" class="campo">
+				<p th:if="${#fields.hasErrors('duenoNombre')}" th:errors="*{duenoNombre}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="duenoEmail" class="rotulo">Email del dueño</label>
+				<input th:field="*{duenoEmail}" type="email" inputmode="email" autocapitalize="none" autocomplete="off" class="campo">
+				<p th:if="${#fields.hasErrors('duenoEmail')}" th:errors="*{duenoEmail}" class="error-campo"></p>
+			</div>
+			<div>
+				<label for="duenoContrasena" class="rotulo">Contraseña inicial del dueño</label>
+				<input th:field="*{duenoContrasena}" type="text" autocomplete="off" class="campo">
+				<p class="ayuda-campo">Mínimo 8 caracteres. Después la cambia desde "Mi cuenta".</p>
+				<p th:if="${#fields.hasErrors('duenoContrasena')}" th:errors="*{duenoContrasena}" class="error-campo"></p>
+			</div>
+			<button type="submit" class="btn-principal w-full justify-center">Crear barbería</button>
+		</form>
+	</section>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('negocios')}"></nav>
+</body>
+</html>
