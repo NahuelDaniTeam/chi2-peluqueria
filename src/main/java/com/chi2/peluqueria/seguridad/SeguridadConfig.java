@@ -28,6 +28,7 @@ class SeguridadConfig {
 								"/actuator/health", "/actuator/health/**").permitAll()
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						.requestMatchers("/equipo/**", "/barberia/**").hasRole("DUENO")
+						.requestMatchers("/agenda", "/agenda/**").hasAnyRole("DUENO", "BARBERO")
 						.anyRequest().authenticated())
 				.formLogin(login -> login
 						.loginPage("/login")

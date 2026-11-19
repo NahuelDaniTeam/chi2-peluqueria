@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- La agenda de un día (ver AgendaController). -->
+<head th:replace="~{fragments/layout :: head('Agenda')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-44 pt-6">
+	<div th:replace="~{fragments/layout :: aviso}"></div>
+
+	<!-- Puesta en marcha (solo el dueño, hasta que esté todo) -->
+	<section th:if="${usuario.dueno and !pasosCompletos}" class="tarjeta mb-8">
+		<h2 class="font-medium">Para empezar</h2>
+		<p class="mt-1 text-sm text-tenue">Con esto listo, la barbería puede empezar a dar turnos.</p>
+		<ol class="mt-4 space-y-1">
+			<li th:each="p : ${pasos}">
+				<a th:href="@{${p.enlace}}" class="-mx-2 flex min-h-11 items-center gap-3 rounded-xl px-2 hover:bg-fondo">
+					<span class="flex size-6 shrink-0 items-center justify-center rounded-full border text-xs"
+					      th:classappend="${p.hecho} ? 'border-tinta bg-tinta text-fondo' : 'border-linea'"
+					      th:text="${p.hecho} ? '✓' : ''" aria-hidden="true"></span>
+					<span th:classappend="${p.hecho} ? 'text-tenue line-through' : 'font-medium'" th:text="${p.texto}">Paso</span>
+					<span th:unless="${p.hecho}" class="ml-auto" aria-hidden="true">→</span>
+				</a>
+			</li>
+		</ol>
+	</section>
+
+	<!-- Día elegido -->
+	<div class="flex items-end justify-between gap-4">
+		<div class="min-w-0">
+			<p class="etiqueta" th:text="${esHoy} ? 'Hoy' : 'Agenda'">Hoy</p>
+			<h1 class="titulo-display mt-3 text-4xl first-letter:uppercase" th:text="${fechaTexto}">jueves 19 de noviembre</h1>
+		</div>
+		<a th:unless="${esHoy}" th:href="@{${enlaceHoy}}" class="btn-secundario shrink-0">Hoy</a>
+	</div>
+
+	<!-- La semana: tocar un día lo muestra; las flechas pasan de semana -->
+	<nav class="mt-6 grid grid-cols-[2rem_repeat(7,minmax(0,1fr))_2rem] items-center gap-1" aria-label="Días de la semana">
+		<a th:href="@{${semanaAnterior}}" class="flex min-h-14 items-center justify-center rounded-xl text-tenue hover:text-tinta" aria-label="Semana anterior">‹</a>
+		<a th:each="d : ${semana}" th:href="@{${d.enlace}}"
+		   class="flex min-h-14 flex-col items-center justify-center rounded-xl border text-sm transition"
+		   th:classappend="${d.elegido} ? 'border-tinta bg-tinta text-fondo' : (${d.hoy} ? 'border-acento/50 bg-superficie' : 'border-transparent hover:border-linea')"
+		   th:attr="aria-current=${d.elegido} ? 'date' : null">
+			<span class="text-xs" th:classappend="${d.elegido} ? 'text-fondo/70' : 'text-tenue'" th:text="${d.letra}">L</span>
+			<span class="font-medium tabular-nums" th:text="${d.numero}">17</span>
+			<span class="mt-0.5 h-1.5 text-[0.65rem] leading-none tabular-nums"
+			      th:classappend="${d.elegido} ? 'text-fondo/70' : 'text-acento'"
+			      th:text="${d.turnos > 0} ? ${d.turnos} : ''"
+			      th:attr="aria-label=${d.turnos > 0} ? |${d.turnos} turnos| : null"></span>
+		</a>
+		<a th:href="@{${semanaSiguiente}}" class="flex min-h-14 items-center justify-center rounded-xl text-tenue hover:text-tinta" aria-label="Semana siguiente">›</a>
+	</nav>
+
+	<!-- Filtro por barbero (solo el dueño) -->
+	<div th:if="${barberos != null and barberos.size() > 2}" class="fila-deslizable mt-5" role="group" aria-label="Barbero">
+		<a th:each="b : ${barberos}" th:href="@{${b.enlace}}" class="chip" th:classappend="${b.elegida} ? 'chip-elegido'"
+		   th:text="${b.texto}" th:attr="aria-current=${b.elegida} ? 'true' : null">Todos</a>
+	</div>
+
+	<!-- Cierres y ausencias del día -->
+	<p th:if="${cierre != null}" class="aviso-error mt-6"
+	   th:text="${cierre.motivo != null} ? |La barbería está cerrada: ${cierre.motivo}.| : 'La barbería está cerrada este día.'">La barbería está cerrada.</p>
+	<p th:unless="${#lists.isEmpty(noVienen)}" class="mt-6 text-sm text-tenue">
+		<span class="font-medium text-tinta">No viene:</span> <span th:text="${#strings.listJoin(noVienen, ', ')}">Juan (vacaciones)</span>
+	</p>
+
+	<!-- Turnos del día -->
+	<p th:if="${!usuario.dueno and !atiendo}" class="mt-8 text-tenue">No figurás como alguien que atiende, así que no te asignan turnos.</p>
+	<p th:if="${#lists.isEmpty(turnos) and (usuario.dueno or atiendo)}" class="mt-8 text-tenue">No hay turnos para este día.</p>
+	<ul class="mt-6 space-y-3">
+		<li th:each="t : ${turnos}">
+			<a th:href="@{/agenda/turnos/{id}(id=${t.turno.id})}" class="tarjeta flex items-center gap-4 p-4 hover:border-tinta">
+				<span class="w-14 shrink-0 text-center">
+					<span class="block text-lg font-medium tabular-nums" th:text="${t.desdeTexto}">10:00</span>
+					<span class="block text-xs text-tenue tabular-nums" th:text="${t.hastaTexto}">10:30</span>
+				</span>
+				<span class="min-w-0 flex-1 border-l border-linea pl-4">
+					<span class="block truncate font-medium" th:text="${t.turno.clienteNombre}">Martín</span>
+					<span class="block truncate text-sm text-tenue"
+					      th:text="${verTodos} ? |${t.turno.servicio.nombre} · ${t.turno.barbero.nombre}| : ${t.turno.servicio.nombre}">Corte · Juan</span>
+				</span>
+				<span th:unless="${t.turno.reservado}" class="shrink-0 rounded-full bg-fondo px-2 py-1 text-xs text-tenue"
+				      th:text="${t.turno.estado.etiqueta}">En curso</span>
+				<span class="shrink-0 text-tenue" aria-hidden="true">→</span>
+			</a>
+		</li>
+	</ul>
+
+	<!-- Cancelados y ausentes, aparte para no ensuciar la lista -->
+	<details th:unless="${#lists.isEmpty(sinLugar)}" class="mt-6">
+		<summary class="flex min-h-11 cursor-pointer items-center text-sm font-medium text-tenue"
+		         th:text="|Cancelados (${sinLugar.size()})|">Cancelados (1)</summary>
+		<ul class="mt-2 space-y-2">
+			<li th:each="t : ${sinLugar}">
+				<a th:href="@{/agenda/turnos/{id}(id=${t.turno.id})}" class="flex min-h-11 items-center gap-3 rounded-xl px-2 text-sm text-tenue hover:bg-superficie">
+					<span class="w-12 shrink-0 tabular-nums line-through" th:text="${t.desdeTexto}">10:00</span>
+					<span class="min-w-0 flex-1 truncate" th:text="|${t.turno.clienteNombre} · ${t.turno.servicio.nombre}|">Martín · Corte</span>
+					<span class="shrink-0 text-xs" th:text="${t.turno.cancelacionTardia} ? 'Tardía' : ${t.turno.estado.etiqueta}">Cancelado</span>
+				</a>
+			</li>
+		</ul>
+	</details>
+</main>
+
+<!-- Botón para cargar un turno, siempre a mano arriba de la barra de abajo -->
+<a th:if="${puedeReservar}" th:href="@{${enlaceNuevo}}"
+   class="btn-principal fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 shadow-lg shadow-tinta/20">
+	<span class="text-xl leading-none" aria-hidden="true">+</span> Nuevo turno
+</a>
+<nav th:replace="~{fragments/layout :: navegacion('agenda')}"></nav>
+</body>
+</html>

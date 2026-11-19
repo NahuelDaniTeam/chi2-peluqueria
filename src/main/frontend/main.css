@@ -100,6 +100,18 @@
     @apply rounded-xl bg-acento/10 px-4 py-3 text-sm font-medium text-acento;
   }
 
+  /* Opciones que se eligen tocando (servicio, barbero, día, horario) */
+  .chip {
+    @apply inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-linea bg-superficie px-4 text-sm font-medium whitespace-nowrap text-tinta transition hover:border-tinta;
+  }
+  .chip-elegido {
+    @apply border-tinta bg-tinta text-fondo;
+  }
+  /* Fila que se desliza de costado en el celular, sin barra visible */
+  .fila-deslizable {
+    @apply -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-8 sm:px-8;
+  }
+
   /* Barra de navegación inferior (celular primero) */
   .pestana {
     @apply flex min-h-16 min-w-20 flex-col items-center justify-center gap-1 text-xs font-medium text-tenue transition hover:text-tinta;

@@ -4,8 +4,8 @@ Sistema que CHI2 vende a barberías y peluquerías para manejar sus turnos. Es u
 vendibles de la marca: cada uno vive en su propio repo, y la web principal (repo `chi2`) presenta
 los sistemas y lleva a cada cliente al suyo con un click.
 
-**Estado:** etapas 1 y 2 hechas. Sigue la etapa 3, agenda y disponibilidad (§3).
-**Última actualización:** 2026-11-18
+**Estado:** etapas 1, 2 y 3 hechas. Sigue la etapa 4, atención "tipo Uber" (§3).
+**Última actualización:** 2026-11-19
 
 ---
 
@@ -36,7 +36,7 @@ Se construye por etapas, una por vez:
 0. Base del proyecto ✅
 1. Barberías, usuarios y acceso ✅
 2. Servicios, barberos y horarios ✅
-3. Agenda y disponibilidad
+3. Agenda y disponibilidad ✅
 4. Atención "tipo Uber" (empezar / finalizar, medio de pago, ausente, modificar, sin turno)
 5. Métricas por barbero y del negocio
 6. Reserva online con aviso por WhatsApp (link `wa.me`, gratis)
@@ -62,7 +62,7 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 
 ### Estructura de paquetes (`com.chi2.peluqueria`)
 
-- `pagina`: login y pantalla de inicio.
+- `pagina`: login, a dónde va cada rol al entrar y la "puesta en marcha" del dueño (`PuestaEnMarcha`).
 - `seguridad`: login, roles, "mantener la sesión iniciada" y el usuario de CHI2 inicial.
 - `negocio`: barberías (alta, suspensión) y su link (`Slugs`).
 - `usuario`: usuarios, equipo de cada barbería y "Mi cuenta".
@@ -71,11 +71,16 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
   Escucha los eventos `ServicioCreado` y `MiembroAgregado` para asignar servicios de entrada.
 - `horario`: horario semanal (`franja_horaria`, hasta dos turnos por día) y días sin atender
   (`ausencia`). En las dos tablas, `usuario_id` nulo = del local. Un barbero sin franjas propias
-  trabaja en el horario del local; con franjas propias, la disponibilidad (etapa 3) tiene que
-  respetar también el horario del local.
+  trabaja en el horario del local; con franjas propias, trabaja en esas franjas dentro del horario del local.
+- `turno`: la agenda (`/agenda/**`). Turnos (`turno`, en UTC), su historial (`turno_cambio`: qué pasó,
+  quién y cuándo) y el cálculo de horarios libres (`Disponibilidad`, con `Tramos` en minutos del día).
+  La base impide que un barbero tenga dos turnos superpuestos (`EXCLUDE` con `btree_gist`, ver
+  `V6__turnos.sql`); los estados que ocupan lugar están en `EstadoTurno.ocupaLugar()` y en esa restricción,
+  y si cambia uno hay que cambiar el otro. Escucha `SaleDeLaAgenda` para que nadie se dé de baja ni deje
+  de atender con turnos reservados.
 - `comun`: excepciones compartidas (`NoEncontradoException` → 404, `OperacionNoPermitidaException` → 400,
-  `DatoNoDisponibleException` → error al lado del campo del formulario) y `Formatos` (precios,
-  duraciones y fechas a la argentina).
+  `DatoNoDisponibleException` → error al lado del campo del formulario, `AccionBloqueadaException` →
+  aviso arriba de la pantalla) y `Formatos` (precios, duraciones, fechas y horas a la argentina).
 - `api`: controladores REST bajo `/api`.
 - Cada funcionalidad nueva va en su propio paquete (ej. `servicio`, `turno`), con su entidad,
   repositorio, servicio y controladores.
@@ -85,10 +90,12 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 | Rol | Entra a | Ve |
 |---|---|---|
 | `ADMIN` (CHI2) | `/admin/**` | Todas las barberías. No pertenece a ninguna. |
-| `DUENO` | `/equipo/**`, `/barberia/**` y todo lo de su barbería | Todo su negocio. |
-| `BARBERO` | Lo común (`/`, `/cuenta`) | Solo lo suyo. |
+| `DUENO` | `/equipo/**`, `/barberia/**`, `/agenda/**` y `/cuenta` | Todo su negocio. |
+| `BARBERO` | `/agenda/**` y `/cuenta` | Solo lo suyo. |
 
 Las reglas por ruta están en `seguridad/SeguridadConfig`. Toda ruta nueva requiere sesión por defecto.
+En las rutas que comparten dueño y barbero (como `/agenda/**`), el servicio recibe `soloDe`: `null` para
+el dueño, el id del barbero para un barbero, que solo ve y toca lo suyo (lo demás le da 404).
 
 ### Aislamiento entre barberías (regla para todo el código)
 

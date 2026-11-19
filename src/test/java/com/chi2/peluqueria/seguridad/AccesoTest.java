@@ -103,8 +103,9 @@ class AccesoTest extends PruebaIntegracion {
 		UsuarioAutenticado admin = UsuarioAutenticado.de(usuarios.buscarParaLogin(ADMIN_EMAIL).orElseThrow());
 
 		mvc.perform(get("/").with(user(datos.sesion(barbero))))
+				.andExpect(redirectedUrl("/agenda"));
+		mvc.perform(get("/agenda").with(user(datos.sesion(barbero))))
 				.andExpect(status().isOk())
-				.andExpect(content().string(containsString("Hola, Juan")))
 				.andExpect(content().string(containsString("Barbería Norte")));
 		mvc.perform(get("/").with(user(admin)))
 				.andExpect(redirectedUrl("/admin/negocios"));

@@ -1,7 +1,7 @@
 # Visión y alcance · Sistema de turnos para barberías
 
-**Estado:** borrador v0.3, con preguntas abiertas (§9)
-**Última actualización:** 2026-11-18
+**Estado:** borrador v0.4, con preguntas abiertas (§9)
+**Última actualización:** 2026-11-19
 **Autor:** Daniel Patolsky
 
 ---
@@ -54,11 +54,16 @@ La barbería entra al sistema desde la web principal de CHI2 (repo `chi2`), con 
 - Agenda del día y de la semana, por barbero y del local completo.
 - Disponibilidad calculada con el horario del barbero, la duración del servicio y los turnos ya tomados.
   Un barbero nunca tiene dos turnos superpuestos.
+- Se ofrecen horarios cada 15 minutos y también justo cuando termina otro turno (después de una barba de
+  20 minutos que empieza a las 9, se puede dar las 9:20). Se dan turnos hasta 90 días para adelante.
 - Se elige barbero o "cualquiera"; con "cualquiera", el sistema asigna uno libre en el horario pedido.
 - La barbería también carga turnos a mano (alguien que llamó o pasó por el local).
 - **Cancelación:** el cliente puede cancelar hasta **24 horas antes**. Avisa por WhatsApp y la barbería
   cancela el turno a mano.
-- Reprogramar un turno.
+- Reprogramar un turno (otro día u horario y, si lo hace el dueño, otro barbero).
+- El barbero carga y mueve solo sus turnos; el dueño, los de todos.
+- No se puede dar de baja ni dejar de atender a alguien con turnos reservados; al cargar un día cerrado o
+  una ausencia que pisa turnos, el sistema avisa para que se reprogramen.
 
 ### 4.4 Atención "tipo Uber"
 
@@ -68,7 +73,8 @@ La barbería entra al sistema desde la web principal de CHI2 (repo `chi2`), con 
 - **Modificar un servicio ya hecho:** si se agregó algo (ej. pasó de corte a corte + barba), se corrige
   después de finalizado. El cambio queda en el historial.
 - **Atención sin turno:** un apartado para cargar a quien entró sin reservar, para que también cuente en las métricas.
-- Historial de cada turno: qué cambió, quién lo cambió y cuándo.
+- Historial de cada turno: qué cambió, quién lo cambió y cuándo (arranca en la etapa 3 con reservado,
+  reprogramado y cancelado).
 
 ### 4.5 Métricas
 
@@ -108,7 +114,7 @@ Cada etapa se entrega completa y probada antes de pasar a la siguiente (una o va
 | 0 | **Base del proyecto** | Spring Boot, Postgres, Tailwind, tests, marca de CHI2. | ✅ Hecha. |
 | 1 | **Barberías, usuarios y acceso** | Modelo multi-negocio, roles dueño y barbero, login con sesión que se mantiene en el celular, alta y suspensión de barberías por CHI2, equipo del dueño (sumar, dar de baja, reactivar), cambio de contraseña. | ✅ Hecha. Un dueño entra y ve solo su barbería; un barbero ve solo lo suyo. |
 | 2 | **Servicios, barberos y horarios** | §4.1 y §4.2: catálogo con duración y precio, ficha de cada barbero (atiende o no, servicios que hace, precio especial), horario del local y propio de cada barbero (hasta dos turnos por día), días cerrados del local y ausencias de cada barbero. La foto del barbero pasa a la etapa 6, que es donde la ve el cliente. | ✅ Hecha. El dueño carga su barbería completa desde el celular. |
-| 3 | **Agenda y disponibilidad** | §4.3: turnos cargados por la barbería, asignación de "cualquiera", cancelar y reprogramar. | La barbería maneja su agenda en el sistema sin superposiciones. |
+| 3 | **Agenda y disponibilidad** | §4.3: agenda del día con la semana arriba (de todos o por barbero), turnos cargados por la barbería, asignación de "cualquiera", cancelar (con cancelación tardía) y reprogramar, e historial de cada turno. | ✅ Hecha. La barbería maneja su agenda en el sistema sin superposiciones. |
 | 4 | **Atención tipo Uber** | §4.4: empezar, finalizar con medio de pago, ausente, modificar un servicio hecho, atención sin turno. | Cada turno termina finalizado con su cobro marcado, o cancelado / ausente. |
 | 5 | **Métricas** | §4.5. | Cada barbero y el dueño ven sus números del mes. |
 | 6 | **Reserva online con aviso por WhatsApp** | §4.6, y la foto de cada barbero para que el cliente elija. | El cliente reserva solo desde el link y a la barbería le llega el WhatsApp. |
@@ -139,6 +145,8 @@ Cada etapa se entrega completa y probada antes de pasar a la siguiente (una o va
 - Uso principal desde el celular.
 
 ## 8. Supuestos (propuestos, a confirmar)
+
+Los de "cualquiera" y la cancelación tardía ya funcionan así desde la etapa 3; si se decide otra cosa, se cambian.
 
 - El cliente no tiene cuenta: se identifica con su teléfono, y cada barbería tiene sus propios clientes.
 - Asignación de "cualquiera": entre los barberos libres que hacen ese servicio, el que tiene menos turnos ese día.
