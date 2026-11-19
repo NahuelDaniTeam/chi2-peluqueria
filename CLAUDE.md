@@ -123,17 +123,19 @@ servidor): firma la cookie de "mantener la sesión iniciada".
 Trabajamos dos personas en paralelo, cada una con su propio Claude. Estas reglas aplican
 a cualquier sesión de Claude en este repo, sea de quien sea (Nahuel o Daniel).
 
-### Ramas
+### Ramas (en este repo es distinto que en `chi2`: sin Pull Requests)
 
-- `main` es la rama estable. **Nunca se commitea ni se pushea directo a `main`.**
-- Cada uno trabaja en su rama: `<usuario-github>/<tema>` (ej: `NahuelLuna/login`).
-- Ramas cortas y enfocadas en una sola cosa. Mejor varias PRs chicas que una gigante.
-- Todo entra a `main` por Pull Request (squash merge). Borrar la rama después del merge.
+- `main` es la rama estable, la que el compañero pullea.
+- Cada uno trabaja en **su rama personal** (Daniel: `dani`). Claude commitea ahí y la pushea a
+  `origin` para que quede respaldada.
+- **A `main` se sube solo cuando el dueño de la rama lo pide.** Se hace con fast-forward
+  (`git push origin dani:main`), sin commits de merge. Si `origin/main` avanzó, primero se rebasea la
+  rama sobre `origin/main` y se corren los tests.
+- No se crean ramas extra en GitHub ni Pull Requests.
 
 ### Mantenerse sincronizado
 
-- Antes de arrancar una tarea y antes de abrir/actualizar una PR:
-  `git fetch origin && git rebase origin/main`.
+- Antes de arrancar una tarea: `git fetch origin && git rebase origin/main`.
 - Integrar seguido (al menos una vez por sesión) para que los conflictos sean chicos.
 - En la rama propia se puede reescribir historia, pero pushear siempre con
   `git push --force-with-lease`, nunca `--force` a secas. Jamás force-push a `main`.
@@ -160,7 +162,7 @@ las dos opciones y le pregunta al usuario cuál va.
 
 ### Commits
 
-- Commits chicos y descriptivos, en español o inglés pero consistentes dentro de una PR.
+- Commits chicos y descriptivos, en español.
 - Formato sugerido: `tipo: descripción` (`feat`, `fix`, `refactor`, `docs`, `chore`, `test`).
 - Las migraciones de Flyway ya mergeadas a `main` no se editan: se agrega una nueva.
 
