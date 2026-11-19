@@ -9,6 +9,9 @@ public interface FranjaHorariaRepository extends JpaRepository<FranjaHoraria, Lo
 
 	List<FranjaHoraria> findAllByNegocioIdAndUsuarioIdIsNullOrderByDiaSemanaAscDesdeAsc(Long negocioId);
 
+	/** Todas: las del local y las de cada barbero (para calcular la disponibilidad). */
+	List<FranjaHoraria> findAllByNegocioId(Long negocioId);
+
 	List<FranjaHoraria> findAllByNegocioIdAndUsuarioIdOrderByDiaSemanaAscDesdeAsc(Long negocioId, Long usuarioId);
 
 	boolean existsByNegocioIdAndUsuarioIdIsNull(Long negocioId);

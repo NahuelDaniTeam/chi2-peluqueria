@@ -1,5 +1,6 @@
 package com.chi2.peluqueria.usuario;
 
+import com.chi2.peluqueria.comun.AccionBloqueadaException;
 import com.chi2.peluqueria.comun.DatoNoDisponibleException;
 import com.chi2.peluqueria.seguridad.UsuarioAutenticado;
 
@@ -55,8 +56,13 @@ class EquipoController {
 
 	@PostMapping("/{id}/baja")
 	String darDeBaja(@AuthenticationPrincipal UsuarioAutenticado yo, @PathVariable Long id, RedirectAttributes redirect) {
-		Usuario usuario = equipo.darDeBaja(yo.getNegocioId(), id, yo.getId());
-		redirect.addFlashAttribute("aviso", usuario.getNombre() + " ya no puede entrar.");
+		try {
+			Usuario usuario = equipo.darDeBaja(yo.getNegocioId(), id, yo.getId());
+			redirect.addFlashAttribute("aviso", usuario.getNombre() + " ya no puede entrar.");
+		}
+		catch (AccionBloqueadaException e) {
+			redirect.addFlashAttribute("avisoError", e.getMessage());
+		}
 		return "redirect:/equipo";
 	}
 

@@ -1,6 +1,7 @@
 package com.chi2.peluqueria.negocio;
 
 import java.time.Instant;
+import java.time.ZoneId;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,6 +69,10 @@ public class Negocio {
 
 	public String getZonaHoraria() {
 		return zonaHoraria;
+	}
+
+	public ZoneId getZona() {
+		return ZoneId.of(zonaHoraria);
 	}
 
 	public boolean isActivo() {

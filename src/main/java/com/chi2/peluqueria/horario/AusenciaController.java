@@ -1,6 +1,7 @@
 package com.chi2.peluqueria.horario;
 
 import com.chi2.peluqueria.seguridad.UsuarioAutenticado;
+import com.chi2.peluqueria.turno.AgendaService;
 import com.chi2.peluqueria.usuario.EquipoService;
 import com.chi2.peluqueria.usuario.Usuario;
 
@@ -22,10 +23,12 @@ class AusenciaController {
 
 	private final AusenciaService ausencias;
 	private final EquipoService equipo;
+	private final AgendaService agenda;
 
-	AusenciaController(AusenciaService ausencias, EquipoService equipo) {
+	AusenciaController(AusenciaService ausencias, EquipoService equipo, AgendaService agenda) {
 		this.ausencias = ausencias;
 		this.equipo = equipo;
+		this.agenda = agenda;
 	}
 
 	// ---- Local ----
@@ -83,6 +86,12 @@ class AusenciaController {
 		}
 		Ausencia nueva = ausencias.crear(yo.getNegocioId(), usuarioId, form);
 		redirect.addFlashAttribute("aviso", "Listo: " + nueva.getFechasTexto() + ".");
+		// Los turnos que ya estaban dados esos días no se tocan solos: se avisa para que los muevan
+		long pisados = agenda.reservadosEntre(yo.getNegocioId(), usuarioId, nueva.getDesde(), nueva.getHasta());
+		if (pisados > 0) {
+			redirect.addFlashAttribute("avisoError", "Ojo: " + (pisados == 1 ? "hay 1 turno reservado"
+					: "hay " + pisados + " turnos reservados") + " esos días. Reprogramalos o cancelalos desde la agenda.");
+		}
 		return usuarioId == null ? "redirect:/barberia/cierres" : "redirect:/equipo/" + usuarioId + "/ausencias";
 	}
 

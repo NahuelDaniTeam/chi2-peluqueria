@@ -16,4 +16,12 @@ public interface AusenciaRepository extends JpaRepository<Ausencia, Long> {
 
 	Optional<Ausencia> findByIdAndNegocioId(Long id, Long negocioId);
 
+	/** Las del local y de cada barbero que tocan algún día de [desde, hasta]. */
+	default List<Ausencia> queTocan(Long negocioId, LocalDate desde, LocalDate hasta) {
+		return findAllByNegocioIdAndDesdeLessThanEqualAndHastaGreaterThanEqual(negocioId, hasta, desde);
+	}
+
+	List<Ausencia> findAllByNegocioIdAndDesdeLessThanEqualAndHastaGreaterThanEqual(Long negocioId, LocalDate hasta,
+			LocalDate desde);
+
 }

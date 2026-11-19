@@ -1,14 +1,19 @@
 package com.chi2.peluqueria.comun;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.Optional;
 
-/** Cómo se muestran y se leen precios y duraciones, a la manera argentina. */
+/** Cómo se muestran y se leen precios, duraciones, fechas y horas, a la manera argentina. */
 public final class Formatos {
 
 	public static final Locale ARGENTINA = Locale.forLanguageTag("es-AR");
+
+	private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("HH:mm");
 
 	private Formatos() {
 	}
@@ -38,6 +43,23 @@ public final class Formatos {
 		String dia = fecha.getDayOfWeek().getDisplayName(TextStyle.SHORT, ARGENTINA).replace(".", "");
 		String texto = dia + " " + fecha.getDayOfMonth() + "/" + fecha.getMonthValue();
 		return fecha.getYear() == LocalDate.now().getYear() ? texto : texto + "/" + fecha.getYear();
+	}
+
+	/** "jueves 20 de noviembre"; si no es de este año, "jueves 20 de noviembre de 2027". */
+	public static String fechaLarga(LocalDate fecha) {
+		String texto = fecha.getDayOfWeek().getDisplayName(TextStyle.FULL, ARGENTINA) + " " + fecha.getDayOfMonth()
+				+ " de " + fecha.getMonth().getDisplayName(TextStyle.FULL, ARGENTINA);
+		return fecha.getYear() == LocalDate.now().getYear() ? texto : texto + " de " + fecha.getYear();
+	}
+
+	/** 9:05 → "09:05" */
+	public static String hora(LocalTime hora) {
+		return HORA.format(hora);
+	}
+
+	/** "jue 20/11 10:00" */
+	public static String fechaHora(LocalDateTime momento) {
+		return fechaCorta(momento.toLocalDate()) + " " + hora(momento.toLocalTime());
 	}
 
 	/** 30 → "30 min", 60 → "1 h", 90 → "1 h 30 min" */
