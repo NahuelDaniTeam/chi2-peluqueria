@@ -20,14 +20,15 @@ con la fecha. Los hechos de más de un mes se pueden borrar.
 
 ## Para Daniel
 
-### 1. Subir a `main` las etapas 2 y 3
-- **Contexto:** al 2026-11-19, la rama `dani` tiene 6 commits que no están en `main`: catálogo de servicios,
-  perfil del barbero, horarios / días cerrados / ausencias (etapa 2) y turnos, reglas y pantallas de la
-  agenda (etapa 3). Mientras no estén en `main`, Nahuel trabaja sobre una base sin esas etapas y los
-  conflictos van a ser más grandes.
-- **Qué entregar:** las etapas 2 y 3 en `origin/main`, con los tests pasando, según el flujo de git que se
-  acuerde en el pendiente 2.
-- **Dónde:** `origin/main`. Actualizar también el **Estado** y §3 de `CLAUDE.md`.
+### 5. Reubicar la rama `dani` sobre `main`
+- **Contexto:** el 2026-11-19 Nahuel subió a `main` los 6 commits de `dani` (etapas 2 y 3 y el flujo de git
+  sin Pull Requests), **rebaseados** sobre el commit de pendientes. Por eso los hashes cambiaron y la rama
+  `dani` quedó divergida de `main` aunque tiene el mismo contenido. Los únicos cambios en la resolución
+  fueron en el encabezado de `CLAUDE.md` (se conservó tu "Estado" y se sumó el aviso de pendientes).
+- **Qué entregar:** si no tenés trabajo nuevo sin subir en `dani`: `git fetch origin && git reset --hard
+  origin/main` estando en `dani`, y `git push --force-with-lease origin dani`. Si tenés trabajo nuevo:
+  `git rebase origin/main` (git va a saltear los commits que ya están).
+- **Dónde:** rama `dani`.
 - cargado por Nahuel, 2026-11-19
 
 ## Para Nahuel
@@ -45,11 +46,12 @@ con la fecha. Los hechos de más de un mes se pueden borrar.
 ## Para los dos
 
 ### 2. Acordar el flujo de git de este repo
-- **Contexto:** `CLAUDE.md` §6 en `main` dice que todo entra a `main` por Pull Request desde ramas
-  `<usuario-github>/<tema>`. En la rama `dani` (commit `8ed52ba`, todavía no en `main`) Daniel propone otro
-  flujo: cada uno en su rama personal, se sube a `main` con fast-forward solo cuando el dueño lo pide, sin
-  Pull Requests. Las dos versiones se contradicen y hay que quedarse con una.
-- **Qué entregar:** la decisión, y `CLAUDE.md` §6 en `main` con la versión elegida.
+- **Contexto:** antes, `CLAUDE.md` §6 decía que todo entraba a `main` por Pull Request desde ramas
+  `<usuario-github>/<tema>`. Daniel propuso otro flujo: cada uno en su rama personal, se sube a `main` con
+  fast-forward solo cuando el dueño lo pide, sin Pull Requests. Desde el 2026-11-19 la propuesta de Daniel
+  **ya está en `main`** (entró junto con las etapas 2 y 3), así que es la regla vigente; falta que los dos
+  la confirmen o la ajusten (por ejemplo, el nombre de la rama personal de Nahuel).
+- **Qué entregar:** la confirmación de los dos, y `CLAUDE.md` §6 ajustado si cambia algo.
 - **Dónde:** `CLAUDE.md` §6.
 - cargado por Nahuel, 2026-11-19
 
@@ -64,4 +66,5 @@ con la fecha. Los hechos de más de un mes se pueden borrar.
 
 ## Hechos
 
-_(nada todavía)_
+- **1. Subir a `main` las etapas 2 y 3** (Daniel): subidas por Nahuel el 2026-11-19, rebaseadas sobre
+  `main`, con los 105 tests pasando. Ver pendiente 5 para reubicar la rama `dani`.

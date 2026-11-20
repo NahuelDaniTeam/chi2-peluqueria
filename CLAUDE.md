@@ -133,6 +133,9 @@ npm run watch:css        # opcional: recompila Tailwind en vivo mientras se edit
 $env:CHI2_ADMIN_EMAIL = "admin@chi2.local"; $env:CHI2_ADMIN_CONTRASENA = "una-clave-larga"; ./mvnw spring-boot:run
 ```
 
+**Puerto:** la web principal (repo `chi2`) también usa el 8080. Si las dos corren a la vez, levantar esta en
+otro puerto sumando `$env:SERVER_PORT = "8081";` antes de `./mvnw spring-boot:run`.
+
 **En producción** además hay que definir `CHI2_CLAVE_RECORDARME` (una clave larga y secreta, propia del
 servidor): firma la cookie de "mantener la sesión iniciada".
 
