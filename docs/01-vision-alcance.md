@@ -97,6 +97,12 @@ Cómo quedó en la etapa 4:
 - **Del negocio (dueño):** lo mismo para todos los barberos, comparados entre sí.
 - No hay comisiones ni propinas.
 
+Cómo quedó en la etapa 5 (pestaña "Números"): de entrada, el mes actual; se cambia a día o semana y se va
+para atrás o adelante. Arriba, lo cobrado y cuánto en efectivo y por transferencia; después atenciones (y
+cuántas fueron sin turno), los que no vinieron y los cancelados (y cuántos con poco aviso); el cobrado por día,
+la comparación entre barberos (el dueño) y lo que se hizo de cada servicio. Avisa los turnos que ya pasaron y
+nadie cerró, porque todavía no cuentan. Un turno cuenta en el día en que empezó.
+
 ### 4.6 Reserva online con aviso por WhatsApp (gratis)
 
 - Cada barbería tiene su link público (ej. `turnos.chi2.com/barberia-juan`) para compartir en Instagram,
@@ -130,7 +136,7 @@ Cada etapa se entrega completa y probada antes de pasar a la siguiente (una o va
 | 2 | **Servicios, barberos y horarios** | §4.1 y §4.2: catálogo con duración y precio, ficha de cada barbero (atiende o no, servicios que hace, precio especial), horario del local y propio de cada barbero (hasta dos turnos por día), días cerrados del local y ausencias de cada barbero. La foto del barbero pasa a la etapa 6, que es donde la ve el cliente. | ✅ Hecha. El dueño carga su barbería completa desde el celular. |
 | 3 | **Agenda y disponibilidad** | §4.3: agenda del día con la semana arriba (de todos o por barbero), turnos cargados por la barbería, asignación de "cualquiera", cancelar (con cancelación tardía) y reprogramar, e historial de cada turno. | ✅ Hecha. La barbería maneja su agenda en el sistema sin superposiciones. |
 | 4 | **Atención tipo Uber** | §4.4: empezar, finalizar con medio de pago, ausente, modificar un servicio hecho, atención sin turno, y aviso de turnos sin cerrar. | ✅ Hecha. Cada turno termina finalizado con su cobro marcado, o cancelado / ausente. |
-| 5 | **Métricas** | §4.5. | Cada barbero y el dueño ven sus números del mes. |
+| 5 | **Métricas** | §4.5. | ✅ Hecha. Cada barbero y el dueño ven sus números del mes. |
 | 6 | **Reserva online con aviso por WhatsApp** | §4.6, y la foto de cada barbero para que el cliente elija. | El cliente reserva solo desde el link y a la barbería le llega el WhatsApp. |
 
 **v1 vendible: etapas 1 a 6.**

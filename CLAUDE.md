@@ -4,7 +4,7 @@ Sistema que CHI2 vende a barberías y peluquerías para manejar sus turnos. Es u
 vendibles de la marca: cada uno vive en su propio repo, y la web principal (repo `chi2`) presenta
 los sistemas y lleva a cada cliente al suyo con un click.
 
-**Estado:** etapas 1 a 4 hechas. Sigue la etapa 5, métricas (§3).
+**Estado:** etapas 1 a 5 hechas. Sigue la etapa 6, reserva online con aviso por WhatsApp (§3).
 **Última actualización:** 2026-11-22
 
 > **Pendientes del equipo:** en [`PENDIENTES.md`](PENDIENTES.md). Claude los muestra al arrancar cada
@@ -41,7 +41,7 @@ Se construye por etapas, una por vez:
 2. Servicios, barberos y horarios ✅
 3. Agenda y disponibilidad ✅
 4. Atención "tipo Uber" (empezar / finalizar, medio de pago, ausente, modificar, sin turno) ✅
-5. Métricas por barbero y del negocio
+5. Métricas por barbero y del negocio ✅
 6. Reserva online con aviso por WhatsApp (link `wa.me`, gratis)
 
 **v1 vendible:** etapas 1 a 6. **Fuera de la v1 (ya decidido):** pagos y señas online, comisiones,
@@ -85,6 +85,10 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
   La atención "tipo Uber" está en `AtencionService` / `AtencionController`: empezar, finalizar con el cobro
   (`monto` en pesos y `medio_pago`, solo marcados), "no vino", deshacer, corregir el cobro y sin turno. Qué
   se puede hacer con un turno en cada momento lo deciden los métodos `puede...()` de `Turno`.
+- `metrica`: los números (`/numeros`) de un día, una semana o un mes (`Periodo`): cobrado y por medio de
+  pago, atenciones (y cuántas sin turno), ausentes, cancelados, por día, por barbero y por servicio
+  (`MetricasService`). Se calculan al vuelo desde `turno`: un turno cuenta en el día en que empezó, en la
+  hora de la barbería, y lo cobrado sale solo de los finalizados.
 - `comun`: excepciones compartidas (`NoEncontradoException` → 404, `OperacionNoPermitidaException` → 400,
   `DatoNoDisponibleException` → error al lado del campo del formulario, `AccionBloqueadaException` →
   aviso arriba de la pantalla) y `Formatos` (precios, duraciones, fechas y horas a la argentina).
@@ -97,11 +101,11 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 | Rol | Entra a | Ve |
 |---|---|---|
 | `ADMIN` (CHI2) | `/admin/**` | Todas las barberías. No pertenece a ninguna. |
-| `DUENO` | `/equipo/**`, `/barberia/**`, `/agenda/**` y `/cuenta` | Todo su negocio. |
-| `BARBERO` | `/agenda/**` y `/cuenta` | Solo lo suyo. |
+| `DUENO` | `/equipo/**`, `/barberia/**`, `/agenda/**`, `/numeros` y `/cuenta` | Todo su negocio. |
+| `BARBERO` | `/agenda/**`, `/numeros` y `/cuenta` | Solo lo suyo. |
 
 Las reglas por ruta están en `seguridad/SeguridadConfig`. Toda ruta nueva requiere sesión por defecto.
-En las rutas que comparten dueño y barbero (como `/agenda/**`), el servicio recibe `soloDe`: `null` para
+En las rutas que comparten dueño y barbero (como `/agenda/**` y `/numeros`), el servicio recibe `soloDe`: `null` para
 el dueño, el id del barbero para un barbero, que solo ve y toca lo suyo (lo demás le da 404).
 
 ### Aislamiento entre barberías (regla para todo el código)
