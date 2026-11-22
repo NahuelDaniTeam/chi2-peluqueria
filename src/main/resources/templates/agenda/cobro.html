@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Finalizar con otro servicio u otro monto, o corregir un turno ya finalizado (ver AtencionController).
+  Elegir el servicio recarga la pantalla con su precio; el monto se puede tocar a mano.
+-->
+<head th:replace="~{fragments/layout :: head(${corregir} ? 'Corregir cobro' : 'Finalizar')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{${volverA}}, ${t.turno.clienteTexto})}"></a>
+	<h1 class="titulo-display mt-2 text-5xl" th:text="${corregir} ? 'Corregir cobro' : 'Finalizar'">Finalizar</h1>
+	<p class="mt-2 text-sm text-tenue" th:text="|${t.turno.clienteTexto} · ${t.fechaTexto} a las ${t.desdeTexto} con ${t.turno.barbero.nombre}.|">
+		Martín · jue 20/11 a las 10:00 con Juan.
+	</p>
+
+	<section class="mt-8">
+		<h2 class="rotulo">Qué se hizo</h2>
+		<div class="space-y-2">
+			<a th:each="s : ${servicios}" th:href="@{${s.enlace}}"
+			   class="tarjeta flex min-h-14 items-center justify-between gap-4 p-4"
+			   th:classappend="${s.elegida} ? 'border-tinta bg-tinta text-fondo' : 'hover:border-tinta'"
+			   th:attr="aria-current=${s.elegida} ? 'true' : null">
+				<span class="min-w-0 truncate font-medium" th:text="${s.texto}">Corte</span>
+				<span class="shrink-0 text-sm" th:classappend="${s.elegida} ? 'text-fondo/70' : 'text-tenue'" th:text="${s.detalle}">$ 12.000</span>
+			</a>
+		</div>
+	</section>
+
+	<form th:action="${corregir} ? @{/agenda/turnos/{id}/cobro(id=${t.turno.id})} : @{/agenda/turnos/{id}/finalizar(id=${t.turno.id})}"
+	      th:object="${form}" method="post" class="mt-8 space-y-8" novalidate>
+		<input type="hidden" th:field="*{servicio}">
+
+		<div>
+			<label for="monto" class="rotulo">Cobrado</label>
+			<div class="relative">
+				<span class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-tenue" aria-hidden="true">$</span>
+				<input th:field="*{monto}" type="text" inputmode="numeric" autocomplete="off" maxlength="15" class="campo pl-8 tabular-nums">
+			</div>
+			<p class="ayuda-campo">En pesos, sin centavos. Es solo para llevar la cuenta.</p>
+			<p th:if="${#fields.hasErrors('monto')}" th:errors="*{monto}" class="error-campo" role="alert"></p>
+		</div>
+
+		<!-- Finalizar: cada medio de pago es un botón; corregir: se elige y se guarda -->
+		<fieldset>
+			<legend class="rotulo">Cómo pagó</legend>
+			<div th:unless="${corregir}" class="grid grid-cols-2 gap-3">
+				<button th:each="m : ${medios}" type="submit" name="medioPago" th:value="${m}"
+				        class="btn-principal min-h-14 justify-center px-3" th:text="${m.etiqueta}">Efectivo</button>
+			</div>
+			<div th:if="${corregir}" class="grid grid-cols-2 gap-3">
+				<label th:each="m : ${medios}" class="block">
+					<input type="radio" th:field="*{medioPago}" th:value="${m}" class="peer sr-only">
+					<span class="chip w-full peer-checked:border-tinta peer-checked:bg-tinta peer-checked:text-fondo peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-acento"
+					      th:text="${m.etiqueta}">Efectivo</span>
+				</label>
+			</div>
+			<p th:if="${#fields.hasErrors('medioPago')}" th:errors="*{medioPago}" class="error-campo" role="alert"></p>
+		</fieldset>
+
+		<button th:if="${corregir}" type="submit" class="btn-principal w-full justify-center">Guardar cambios</button>
+	</form>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('agenda')}"></nav>
+</body>
+</html>

@@ -25,7 +25,15 @@ public class TurnoCambio {
 
 		CREADO("Reservado"),
 		REPROGRAMADO("Reprogramado"),
-		CANCELADO("Cancelado");
+		CANCELADO("Cancelado"),
+		// Atención (etapa 4)
+		SIN_TURNO("Llegó sin turno"),
+		EMPEZADO("Empezado"),
+		FINALIZADO("Finalizado"),
+		AUSENTE("No vino"),
+		VUELTO_A_RESERVADO("Volvió a reservado"),
+		ANULADO("Anulado"),
+		COBRO_CORREGIDO("Cobro corregido");
 
 		private final String etiqueta;
 

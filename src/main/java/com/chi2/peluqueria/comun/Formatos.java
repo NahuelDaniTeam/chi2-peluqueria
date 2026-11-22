@@ -20,7 +20,12 @@ public final class Formatos {
 
 	/** 12000 → "$ 12.000" */
 	public static String precio(int pesos) {
-		return "$ " + String.format(ARGENTINA, "%,d", pesos);
+		return "$ " + miles(pesos);
+	}
+
+	/** 12000 → "12.000" (para dejar un monto escrito en un campo, que ya muestra el "$") */
+	public static String miles(int pesos) {
+		return String.format(ARGENTINA, "%,d", pesos);
 	}
 
 	/**

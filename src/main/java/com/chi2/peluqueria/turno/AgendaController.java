@@ -39,14 +39,19 @@ class AgendaController {
 
 	private static final String[] LETRAS = { "L", "M", "M", "J", "V", "S", "D" };
 
+	/** Cuántos turnos sin cerrar de días anteriores se listan (el resto se cuenta). */
+	static final int SIN_CERRAR_A_LA_VISTA = 5;
+
 	private final AgendaService agenda;
+	private final AtencionService atencion;
 	private final UsuarioRepository usuarios;
 	private final AusenciaRepository ausencias;
 	private final PuestaEnMarcha puestaEnMarcha;
 
-	AgendaController(AgendaService agenda, UsuarioRepository usuarios, AusenciaRepository ausencias,
-			PuestaEnMarcha puestaEnMarcha) {
+	AgendaController(AgendaService agenda, AtencionService atencion, UsuarioRepository usuarios,
+			AusenciaRepository ausencias, PuestaEnMarcha puestaEnMarcha) {
 		this.agenda = agenda;
+		this.atencion = atencion;
 		this.usuarios = usuarios;
 		this.ausencias = ausencias;
 		this.puestaEnMarcha = puestaEnMarcha;
@@ -68,8 +73,11 @@ class AgendaController {
 		Long enLinks = yo.isDueno() ? filtro : null;
 
 		List<AgendaService.TurnoVista> turnos = agenda.delDia(negocioId, dia, filtro);
+		List<AgendaService.TurnoVista> sinLugar = turnos.stream().filter(t -> !t.turno().getEstado().ocupaLugar())
+				.toList();
 		model.addAttribute("turnos", turnos.stream().filter(t -> t.turno().getEstado().ocupaLugar()).toList());
-		model.addAttribute("sinLugar", turnos.stream().filter(t -> !t.turno().getEstado().ocupaLugar()).toList());
+		model.addAttribute("sinLugar", sinLugar);
+		model.addAttribute("tituloSinLugar", tituloSinLugar(sinLugar));
 
 		model.addAttribute("fecha", dia);
 		model.addAttribute("fechaTexto", Formatos.fechaLarga(dia));
@@ -91,7 +99,20 @@ class AgendaController {
 		model.addAttribute("puedeReservar", yo.isDueno() || atiendo);
 		model.addAttribute("atiendo", atiendo);
 		model.addAttribute("enlaceNuevo", enlace("/agenda/nuevo", dia.isBefore(hoy) ? hoy : dia, enLinks));
+		if (dia.equals(hoy)) {
+			// Alguien que entra sin turno se atiende hoy; y lo que quedó abierto de otros días se ve acá
+			model.addAttribute("enlaceSinTurno", TurnoController.enlace("/agenda/sin-turno", "barbero", enLinks));
+			model.addAttribute("sinCerrar", atencion.sinCerrar(negocioId, filtro));
+			model.addAttribute("sinCerrarALaVista", SIN_CERRAR_A_LA_VISTA);
+		}
 		return "agenda/agenda";
+	}
+
+	/** "Cancelados (2)", "No vinieron (1)" o "Cancelados y ausentes (3)". */
+	private static String tituloSinLugar(List<AgendaService.TurnoVista> sinLugar) {
+		long ausentes = sinLugar.stream().filter(t -> t.turno().getEstado() == EstadoTurno.AUSENTE).count();
+		String titulo = ausentes == 0 ? "Cancelados" : ausentes == sinLugar.size() ? "No vinieron" : "Cancelados y ausentes";
+		return titulo + " (" + sinLugar.size() + ")";
 	}
 
 	/** Lunes a domingo de la semana de {@code dia}, con cuántos turnos tiene cada uno. */

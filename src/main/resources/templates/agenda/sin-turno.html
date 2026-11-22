@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Alguien que entró sin reservar (ver AtencionController). Se elige quién (solo el dueño) y el servicio;
+  después se empieza ahora o, si ya lo atendió, se carga directo con el cobro.
+-->
+<head th:replace="~{fragments/layout :: head('Sin turno')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-4">
+	<a th:replace="~{fragments/layout :: volver(@{/agenda}, 'Agenda')}"></a>
+	<h1 class="titulo-display mt-2 text-5xl">Sin turno</h1>
+	<p class="mt-2 text-sm text-tenue">Para alguien que entró sin reservar. Así también cuenta en los números.</p>
+
+	<div th:unless="${puedeAtender}" class="tarjeta mt-8">
+		<p class="font-medium">No hay nadie que atienda.</p>
+		<p class="mt-1 text-sm text-tenue" th:text="${usuario.dueno}
+				? 'Marcá en el equipo quién atiende para poder cargar atenciones.'
+				: 'No figurás como alguien que atiende. Pedile al dueño que lo cambie.'">No figurás como alguien que atiende.</p>
+	</div>
+
+	<th:block th:if="${puedeAtender}">
+		<!-- 1. Con quién (solo el dueño, si hay más de uno) -->
+		<section th:if="${barberos != null}" class="mt-8">
+			<h2 class="rotulo">Con quién</h2>
+			<div th:replace="~{agenda/selector :: chips(${barberos}, 'Con quién')}"></div>
+			<p th:if="${#fields.hasErrors('${form.barbero}')}" th:errors="${form.barbero}" class="error-campo" role="alert"></p>
+		</section>
+
+		<!-- 2. Servicio -->
+		<section class="mt-8">
+			<h2 class="rotulo">Servicio</h2>
+			<p th:if="${#lists.isEmpty(servicios)}" class="text-tenue">La barbería todavía no cargó servicios.</p>
+			<div th:if="${servicioElegido == null}" class="space-y-2">
+				<a th:each="s : ${servicios}" th:href="@{${s.enlace}}" class="tarjeta flex min-h-14 items-center justify-between gap-4 p-4 hover:border-tinta">
+					<span class="min-w-0 truncate font-medium" th:text="${s.texto}">Corte</span>
+					<span class="shrink-0 text-sm text-tenue" th:text="${s.detalle}">30 min · $ 12.000</span>
+				</a>
+			</div>
+			<div th:if="${servicioElegido != null}" class="tarjeta flex items-center justify-between gap-4 p-4">
+				<span class="min-w-0">
+					<span class="block truncate font-medium" th:text="${servicioElegido.nombre}">Corte</span>
+					<span class="block text-sm text-tenue" th:text="${servicioElegido.duracionTexto}">30 min</span>
+				</span>
+				<a th:if="${servicios.size() > 1}" th:href="@{${cambiarServicio}}" class="btn-secundario shrink-0">Cambiar</a>
+			</div>
+			<p th:if="${#fields.hasErrors('${form.servicio}')}" th:errors="${form.servicio}" class="error-campo" role="alert"></p>
+		</section>
+
+		<!-- 3. Cliente y empezar (o cargarlo ya atendido) -->
+		<form th:if="${servicioElegido != null}" th:action="@{/agenda/sin-turno}" th:object="${form}" method="post" class="mt-8" novalidate>
+			<input type="hidden" th:field="*{servicio}">
+			<input type="hidden" th:field="*{barbero}">
+
+			<div>
+				<label for="nombre" class="rotulo">Nombre del cliente (opcional)</label>
+				<input th:field="*{nombre}" type="text" autocomplete="off" autocapitalize="words" maxlength="80" class="campo">
+				<p th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="error-campo"></p>
+			</div>
+
+			<button type="submit" class="btn-principal mt-8 min-h-14 w-full justify-center text-lg">
+				Empezar ahora <span class="font-normal text-fondo/70" th:text="|· ${ahora}|">· 10:35</span>
+			</button>
+
+			<!-- Si ya lo atendió: se carga con el cobro, sin pasar por "empezar" -->
+			<details class="group mt-4" th:open="${#fields.hasErrors('monto') or #fields.hasErrors('medioPago')}">
+				<summary class="btn-secundario w-full cursor-pointer list-none group-open:hidden">Ya lo atendí: cargar el cobro</summary>
+				<div class="tarjeta space-y-5">
+					<div>
+						<label for="monto" class="rotulo">Cobrado</label>
+						<div class="relative">
+							<span class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-tenue" aria-hidden="true">$</span>
+							<input th:field="*{monto}" type="text" inputmode="numeric" autocomplete="off" maxlength="15" class="campo pl-8 tabular-nums">
+						</div>
+						<p th:if="${#fields.hasErrors('monto')}" th:errors="*{monto}" class="error-campo" role="alert"></p>
+					</div>
+					<fieldset>
+						<legend class="rotulo">Cómo pagó</legend>
+						<div class="grid grid-cols-2 gap-3">
+							<button th:each="m : ${medios}" type="submit" name="medioPago" th:value="${m}"
+							        class="btn-principal min-h-14 justify-center px-3" th:text="${m.etiqueta}">Efectivo</button>
+						</div>
+					</fieldset>
+				</div>
+			</details>
+		</form>
+	</th:block>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('agenda')}"></nav>
+</body>
+</html>

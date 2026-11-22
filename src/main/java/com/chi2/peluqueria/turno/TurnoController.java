@@ -50,11 +50,14 @@ class TurnoController {
 	}
 
 	private final AgendaService agenda;
+	private final AtencionService atencion;
 	private final Disponibilidad disponibilidad;
 	private final CatalogoService catalogo;
 
-	TurnoController(AgendaService agenda, Disponibilidad disponibilidad, CatalogoService catalogo) {
+	TurnoController(AgendaService agenda, AtencionService atencion, Disponibilidad disponibilidad,
+			CatalogoService catalogo) {
 		this.agenda = agenda;
+		this.atencion = atencion;
 		this.disponibilidad = disponibilidad;
 		this.catalogo = catalogo;
 	}
@@ -153,11 +156,21 @@ class TurnoController {
 
 	// ---- Ver, cancelar ----
 
+	/** La pantalla de un turno: sus datos, lo que se puede hacer ahora (ver {@link AtencionService.Acciones}) y su historial. */
 	@GetMapping("/turnos/{id}")
 	String ver(@AuthenticationPrincipal UsuarioAutenticado yo, @PathVariable Long id, Model model) {
-		AgendaService.TurnoVista turno = agenda.ver(yo.getNegocioId(), soloDe(yo), id);
+		Long negocioId = yo.getNegocioId();
+		AgendaService.TurnoVista turno = agenda.ver(negocioId, soloDe(yo), id);
+		AtencionService.Acciones acciones = atencion.acciones(turno.turno(), agenda.zona(negocioId));
 		model.addAttribute("t", turno);
-		model.addAttribute("historial", agenda.historial(yo.getNegocioId(), soloDe(yo), id));
+		model.addAttribute("acciones", acciones);
+		if (acciones.cobrar()) {
+			// Finalizar en un toque: el servicio reservado, al precio de este barbero
+			int precio = atencion.precio(negocioId, turno.turno().getBarbero().getId(), turno.turno().getServicio());
+			model.addAttribute("precio", precio);
+			model.addAttribute("precioTexto", Formatos.precio(precio));
+		}
+		model.addAttribute("historial", agenda.historial(negocioId, soloDe(yo), id));
 		model.addAttribute("cancelacionTardia", agenda.cancelarSeriaTardio(turno.turno()));
 		model.addAttribute("volverA", enlace("/agenda", "fecha", turno.fecha()));
 		return "agenda/turno";

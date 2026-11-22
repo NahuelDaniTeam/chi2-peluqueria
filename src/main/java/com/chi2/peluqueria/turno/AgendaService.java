@@ -63,6 +63,11 @@ public class AgendaService {
 			return Formatos.hora(hasta);
 		}
 
+		/** Reservado y ya pasó su horario: falta marcar si se atendió, si no vino o si se canceló. */
+		public boolean isSinCerrar() {
+			return turno.isSinCerrar(Instant.now());
+		}
+
 	}
 
 	/** Una entrada del historial, con la hora de la barbería. */
@@ -246,7 +251,7 @@ public class AgendaService {
 
 	// ---- Ayudas ----
 
-	private Turno buscar(Long negocioId, Long soloDe, Long turnoId) {
+	Turno buscar(Long negocioId, Long soloDe, Long turnoId) {
 		Turno turno = turnos.buscar(negocioId, turnoId).orElseThrow(NoEncontradoException::new);
 		if (soloDe != null && !turno.getBarbero().getId().equals(soloDe)) {
 			throw new NoEncontradoException();
@@ -291,7 +296,7 @@ public class AgendaService {
 		}
 	}
 
-	private void registrar(Turno turno, Long usuarioId, TurnoCambio.Accion accion, String detalle) {
+	void registrar(Turno turno, Long usuarioId, TurnoCambio.Accion accion, String detalle) {
 		Usuario quien = usuarioId == null ? null : usuarios.getReferenceById(usuarioId);
 		cambios.save(new TurnoCambio(turno, quien, accion, detalle));
 	}
@@ -300,11 +305,11 @@ public class AgendaService {
 		return fecha.atTime(hora).atZone(zona(negocioId)).toInstant();
 	}
 
-	private static Instant inicioDelDia(LocalDate fecha, ZoneId zona) {
+	static Instant inicioDelDia(LocalDate fecha, ZoneId zona) {
 		return fecha.atStartOfDay(zona).toInstant();
 	}
 
-	private static TurnoVista vista(Turno turno, ZoneId zona) {
+	static TurnoVista vista(Turno turno, ZoneId zona) {
 		LocalDateTime desde = LocalDateTime.ofInstant(turno.getInicio(), zona);
 		LocalDateTime hasta = LocalDateTime.ofInstant(turno.getFin(), zona);
 		return new TurnoVista(turno, desde.toLocalDate(), desde.toLocalTime(), hasta.toLocalTime());

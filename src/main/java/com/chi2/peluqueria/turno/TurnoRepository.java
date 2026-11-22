@@ -26,6 +26,16 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
 	List<Turno> queEmpiezanEntre(@Param("negocioId") Long negocioId, @Param("barberoId") Long barberoId,
 			@Param("desde") Instant desde, @Param("hasta") Instant hasta);
 
+	/** Los de esos estados que empiezan en [desde, hasta), del más nuevo al más viejo ({@code barberoId} nulo = todos). */
+	@Query("""
+			select t from Turno t join fetch t.barbero join fetch t.servicio
+			where t.negocioId = :negocioId and (:barberoId is null or t.barbero.id = :barberoId)
+			  and t.estado in :estados and t.inicio >= :desde and t.inicio < :hasta
+			order by t.inicio desc, t.barbero.nombre""")
+	List<Turno> conEstadoEntre(@Param("negocioId") Long negocioId, @Param("barberoId") Long barberoId,
+			@Param("estados") Collection<EstadoTurno> estados, @Param("desde") Instant desde,
+			@Param("hasta") Instant hasta);
+
 	/** Los que ocupan lugar y se superponen con [desde, hasta), de esos barberos. */
 	@Query("""
 			select t from Turno t
