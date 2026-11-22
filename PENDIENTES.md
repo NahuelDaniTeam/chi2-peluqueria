@@ -20,16 +20,7 @@ con la fecha. Los hechos de más de un mes se pueden borrar.
 
 ## Para Daniel
 
-### 5. Reubicar la rama `dani` sobre `main`
-- **Contexto:** el 2026-11-19 Nahuel subió a `main` los 6 commits de `dani` (etapas 2 y 3 y el flujo de git
-  sin Pull Requests), **rebaseados** sobre el commit de pendientes. Por eso los hashes cambiaron y la rama
-  `dani` quedó divergida de `main` aunque tiene el mismo contenido. Los únicos cambios en la resolución
-  fueron en el encabezado de `CLAUDE.md` (se conservó tu "Estado" y se sumó el aviso de pendientes).
-- **Qué entregar:** si no tenés trabajo nuevo sin subir en `dani`: `git fetch origin && git reset --hard
-  origin/main` estando en `dani`, y `git push --force-with-lease origin dani`. Si tenés trabajo nuevo:
-  `git rebase origin/main` (git va a saltear los commits que ya están).
-- **Dónde:** rama `dani`.
-- cargado por Nahuel, 2026-11-19
+_(nada por ahora)_
 
 ## Para Nahuel
 
@@ -66,5 +57,7 @@ con la fecha. Los hechos de más de un mes se pueden borrar.
 
 ## Hechos
 
+- **5. Reubicar la rama `dani` sobre `main`** (Daniel): `dani` se puso igual a `origin/main` (no tenía
+  trabajo sin subir) y se pusheó con `--force-with-lease`. La etapa 4 arranca desde ahí. · 2026-11-22
 - **1. Subir a `main` las etapas 2 y 3** (Daniel): subidas por Nahuel el 2026-11-19, rebaseadas sobre
   `main`, con los 105 tests pasando. Ver pendiente 5 para reubicar la rama `dani`.

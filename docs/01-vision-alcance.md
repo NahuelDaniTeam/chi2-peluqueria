@@ -1,7 +1,7 @@
 # Visión y alcance · Sistema de turnos para barberías
 
-**Estado:** borrador v0.4, con preguntas abiertas (§9)
-**Última actualización:** 2026-11-19
+**Estado:** borrador v0.5, con preguntas abiertas (§9)
+**Última actualización:** 2026-11-22
 **Autor:** Daniel Patolsky
 
 ---
@@ -73,8 +73,22 @@ La barbería entra al sistema desde la web principal de CHI2 (repo `chi2`), con 
 - **Modificar un servicio ya hecho:** si se agregó algo (ej. pasó de corte a corte + barba), se corrige
   después de finalizado. El cambio queda en el historial.
 - **Atención sin turno:** un apartado para cargar a quien entró sin reservar, para que también cuente en las métricas.
-- Historial de cada turno: qué cambió, quién lo cambió y cuándo (arranca en la etapa 3 con reservado,
-  reprogramado y cancelado).
+- Historial de cada turno: qué cambió, quién lo cambió y cuándo.
+
+Cómo quedó en la etapa 4:
+
+- **Empezar** se puede el mismo día del turno (el cliente puede llegar antes o tarde).
+- **Finalizar** es un toque: el servicio reservado al precio de ese barbero (su precio especial, si tiene) y
+  un botón por medio de pago. Para cambiar el servicio o el monto, "Cambiar". Si el barbero se olvidó de
+  tocar "Empezar", un turno cuya hora ya pasó se finaliza igual. El horario reservado no cambia.
+- **No vino** se marca recién cuando llega la hora del turno, y libera el horario que queda.
+- **Deshacer:** un "Empezar" o un "No vino" tocados sin querer vuelven a reservado (si nadie tomó ese
+  horario mientras tanto). Una atención sin turno cargada por error se anula.
+- **Sin turno:** se elige quién y el servicio, y se empieza ahora; o, si ya se atendió, se carga directo con
+  el cobro. El nombre del cliente es opcional. Puede pisarse unos minutos con un turno (el barbero lo mete
+  entre dos), pero la agenda no ofrece a otros el rato que ocupa; si termina antes, ese rato se libera.
+- **Sin cerrar:** un turno reservado cuya hora ya pasó se marca "Sin cerrar" en la agenda, y la agenda de
+  hoy lista los que quedaron abiertos de los últimos 30 días.
 
 ### 4.5 Métricas
 
@@ -115,7 +129,7 @@ Cada etapa se entrega completa y probada antes de pasar a la siguiente (una o va
 | 1 | **Barberías, usuarios y acceso** | Modelo multi-negocio, roles dueño y barbero, login con sesión que se mantiene en el celular, alta y suspensión de barberías por CHI2, equipo del dueño (sumar, dar de baja, reactivar), cambio de contraseña. | ✅ Hecha. Un dueño entra y ve solo su barbería; un barbero ve solo lo suyo. |
 | 2 | **Servicios, barberos y horarios** | §4.1 y §4.2: catálogo con duración y precio, ficha de cada barbero (atiende o no, servicios que hace, precio especial), horario del local y propio de cada barbero (hasta dos turnos por día), días cerrados del local y ausencias de cada barbero. La foto del barbero pasa a la etapa 6, que es donde la ve el cliente. | ✅ Hecha. El dueño carga su barbería completa desde el celular. |
 | 3 | **Agenda y disponibilidad** | §4.3: agenda del día con la semana arriba (de todos o por barbero), turnos cargados por la barbería, asignación de "cualquiera", cancelar (con cancelación tardía) y reprogramar, e historial de cada turno. | ✅ Hecha. La barbería maneja su agenda en el sistema sin superposiciones. |
-| 4 | **Atención tipo Uber** | §4.4: empezar, finalizar con medio de pago, ausente, modificar un servicio hecho, atención sin turno. | Cada turno termina finalizado con su cobro marcado, o cancelado / ausente. |
+| 4 | **Atención tipo Uber** | §4.4: empezar, finalizar con medio de pago, ausente, modificar un servicio hecho, atención sin turno, y aviso de turnos sin cerrar. | ✅ Hecha. Cada turno termina finalizado con su cobro marcado, o cancelado / ausente. |
 | 5 | **Métricas** | §4.5. | Cada barbero y el dueño ven sus números del mes. |
 | 6 | **Reserva online con aviso por WhatsApp** | §4.6, y la foto de cada barbero para que el cliente elija. | El cliente reserva solo desde el link y a la barbería le llega el WhatsApp. |
 
@@ -166,7 +180,7 @@ Los de "cualquiera" y la cancelación tardía ya funcionan así desde la etapa 3
 
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
-| Los barberos no cierran los turnos y las métricas quedan incompletas. | Alto | Finalizar en dos toques; aviso de turnos que quedaron sin cerrar al final del día. |
+| Los barberos no cierran los turnos y las métricas quedan incompletas. | Alto | Finalizar en dos toques (abrir el turno y tocar el medio de pago); la agenda de hoy avisa los turnos que quedaron sin cerrar (etapa 4). |
 | Reservas falsas o de broma desde el link público, que bloquean horarios. | Medio | Pedir nombre y teléfono; límite de reservas abiertas por teléfono; cancelar en un toque. |
 | El cliente confirma en el link pero nunca manda el WhatsApp. | Bajo | El turno igual queda en la agenda (§9.1), así que la barbería lo ve. |
 | Seis etapas en unos dos meses, en paralelo con la facultad. | Medio | Etapas chicas y en orden; si hace falta, recortar métricas a lo mínimo. |

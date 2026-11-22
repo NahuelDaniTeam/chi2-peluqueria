@@ -4,8 +4,8 @@ Sistema que CHI2 vende a barberías y peluquerías para manejar sus turnos. Es u
 vendibles de la marca: cada uno vive en su propio repo, y la web principal (repo `chi2`) presenta
 los sistemas y lleva a cada cliente al suyo con un click.
 
-**Estado:** etapas 1, 2 y 3 hechas. Sigue la etapa 4, atención "tipo Uber" (§3).
-**Última actualización:** 2026-11-19
+**Estado:** etapas 1 a 4 hechas. Sigue la etapa 5, métricas (§3).
+**Última actualización:** 2026-11-22
 
 > **Pendientes del equipo:** en [`PENDIENTES.md`](PENDIENTES.md). Claude los muestra al arrancar cada
 > sesión y los menciona en cada respuesta (§7).
@@ -40,7 +40,7 @@ Se construye por etapas, una por vez:
 1. Barberías, usuarios y acceso ✅
 2. Servicios, barberos y horarios ✅
 3. Agenda y disponibilidad ✅
-4. Atención "tipo Uber" (empezar / finalizar, medio de pago, ausente, modificar, sin turno)
+4. Atención "tipo Uber" (empezar / finalizar, medio de pago, ausente, modificar, sin turno) ✅
 5. Métricas por barbero y del negocio
 6. Reserva online con aviso por WhatsApp (link `wa.me`, gratis)
 
@@ -78,9 +78,13 @@ celular y tiene que ser muy intuitiva (acciones en uno o dos toques); la computa
 - `turno`: la agenda (`/agenda/**`). Turnos (`turno`, en UTC), su historial (`turno_cambio`: qué pasó,
   quién y cuándo) y el cálculo de horarios libres (`Disponibilidad`, con `Tramos` en minutos del día).
   La base impide que un barbero tenga dos turnos superpuestos (`EXCLUDE` con `btree_gist`, ver
-  `V6__turnos.sql`); los estados que ocupan lugar están en `EstadoTurno.ocupaLugar()` y en esa restricción,
-  y si cambia uno hay que cambiar el otro. Escucha `SaleDeLaAgenda` para que nadie se dé de baja ni deje
-  de atender con turnos reservados.
+  `V6__turnos.sql` y `V7__atencion.sql`); los estados que ocupan lugar están en `EstadoTurno.ocupaLugar()` y
+  en esa restricción, y si cambia uno hay que cambiar el otro. La atención sin turno (`turno.sin_turno`)
+  queda afuera de la restricción, pero `Disponibilidad` igual la cuenta como ocupada. Escucha
+  `SaleDeLaAgenda` para que nadie se dé de baja ni deje de atender con turnos reservados.
+  La atención "tipo Uber" está en `AtencionService` / `AtencionController`: empezar, finalizar con el cobro
+  (`monto` en pesos y `medio_pago`, solo marcados), "no vino", deshacer, corregir el cobro y sin turno. Qué
+  se puede hacer con un turno en cada momento lo deciden los métodos `puede...()` de `Turno`.
 - `comun`: excepciones compartidas (`NoEncontradoException` → 404, `OperacionNoPermitidaException` → 400,
   `DatoNoDisponibleException` → error al lado del campo del formulario, `AccionBloqueadaException` →
   aviso arriba de la pantalla) y `Formatos` (precios, duraciones, fechas y horas a la argentina).
