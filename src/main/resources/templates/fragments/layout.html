@@ -54,7 +54,8 @@
 </a>
 
 <!--
-  Navegación inferior, como en una app. "activo" es la pestaña actual: agenda, equipo, barberia, negocios o cuenta.
+  Navegación inferior, como en una app. "activo" es la pestaña actual: agenda, numeros, equipo, barberia, negocios
+  o cuenta.
   Cada pantalla con navegación deja lugar abajo con pb-28 en el <main>.
 -->
 <nav th:fragment="navegacion(activo)" th:if="${usuario != null}" aria-label="Secciones"
@@ -64,6 +65,12 @@
 			<a th:href="@{/agenda}" class="pestana" th:classappend="${activo == 'agenda'} ? 'pestana-activa'">
 				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
 				Agenda
+			</a>
+		</li>
+		<li th:unless="${usuario.admin}">
+			<a th:href="@{/numeros}" class="pestana" th:classappend="${activo == 'numeros'} ? 'pestana-activa'">
+				<svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>
+				Números
 			</a>
 		</li>
 		<li th:if="${usuario.dueno}">

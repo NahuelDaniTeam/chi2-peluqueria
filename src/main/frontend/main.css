@@ -114,7 +114,7 @@
 
   /* Barra de navegación inferior (celular primero) */
   .pestana {
-    @apply flex min-h-16 min-w-20 flex-col items-center justify-center gap-1 text-xs font-medium text-tenue transition hover:text-tinta;
+    @apply flex min-h-16 min-w-16 flex-col items-center justify-center gap-1 text-xs font-medium text-tenue transition hover:text-tinta;
   }
   .pestana-activa {
     @apply text-tinta;

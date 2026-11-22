@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Los números de un período (ver MetricasController). Arriba lo cobrado (la cifra principal) y cómo se cobró;
+  después atenciones, ausentes y cancelados, el cobrado por día, la comparación por barbero (solo el dueño,
+  viendo a todos) y lo que se hizo de cada servicio. Los gráficos son barras de un solo color (acento), sin
+  JavaScript: cada barra tiene su detalle al pasar el dedo o el mouse, y abajo está la tabla día por día.
+-->
+<head th:replace="~{fragments/layout :: head('Números')}"></head>
+<body class="bg-fondo font-sans text-tinta antialiased">
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+<main class="contenedor max-w-xl pb-28 pt-6">
+
+	<!-- Período: día, semana o mes, y flechas para ir para atrás o adelante -->
+	<div class="flex items-end justify-between gap-4">
+		<div class="min-w-0">
+			<p class="etiqueta" th:text="${etiqueta}">Este mes</p>
+			<h1 class="titulo-display mt-3 text-4xl first-letter:uppercase" th:text="${periodo.titulo}">noviembre de 2026</h1>
+			<p th:if="${de != null}" class="mt-1 text-sm text-tenue" th:text="|De ${de.nombre}|">De Juan</p>
+		</div>
+		<div class="flex shrink-0 items-center gap-1">
+			<a th:href="@{${anterior}}" class="flex size-11 items-center justify-center rounded-full text-tenue hover:bg-superficie hover:text-tinta" aria-label="Anterior">‹</a>
+			<a th:if="${siguiente != null}" th:href="@{${siguiente}}" class="flex size-11 items-center justify-center rounded-full text-tenue hover:bg-superficie hover:text-tinta" aria-label="Siguiente">›</a>
+			<span th:if="${siguiente == null}" class="size-11" aria-hidden="true"></span>
+		</div>
+	</div>
+
+	<div class="mt-5 flex items-center justify-between gap-3">
+		<div class="flex gap-2" role="group" aria-label="Período">
+			<a th:each="t : ${tipos}" th:href="@{${t.enlace}}" class="chip" th:classappend="${t.elegida} ? 'chip-elegido'"
+			   th:attr="aria-current=${t.elegida} ? 'true' : null" th:text="${t.texto}">Mes</a>
+		</div>
+		<a th:if="${enlaceHoy != null}" th:href="@{${enlaceHoy}}" class="btn-secundario shrink-0">Hoy</a>
+	</div>
+	<div th:if="${barberos != null}" class="fila-deslizable mt-3" role="group" aria-label="Barbero">
+		<a th:each="b : ${barberos}" th:href="@{${b.enlace}}" class="chip" th:classappend="${b.elegida} ? 'chip-elegido'"
+		   th:attr="aria-current=${b.elegida} ? 'true' : null" th:text="${b.texto}">Todos</a>
+	</div>
+
+	<p th:if="${r.vacio}" class="tarjeta mt-8 text-tenue">Todavía no hay nada en este período.</p>
+
+	<th:block th:unless="${r.vacio}">
+		<!-- Lo cobrado: la cifra principal, y cómo se cobró -->
+		<section class="tarjeta mt-8" aria-labelledby="cobrado">
+			<h2 id="cobrado" class="text-sm text-tenue">Cobrado</h2>
+			<p class="mt-1 text-5xl font-semibold tracking-tight" th:text="${r.cobradoTexto}">$ 348.000</p>
+			<p class="mt-2 text-sm text-tenue"
+			   th:text="${r.atenciones == 1} ? 'En 1 atención.' : |En ${r.atenciones} atenciones · ${r.promedioTexto} en promedio.|">En 29 atenciones · $ 12.000 en promedio.</p>
+
+			<th:block th:if="${r.cobrado > 0}">
+				<!-- Barra fina partida en dos: efectivo (acento) y transferencia (el mismo color, más claro) -->
+				<div class="mt-5 flex h-2 gap-0.5 overflow-hidden rounded-full" role="img"
+				     th:attr="aria-label=|Efectivo ${r.porcentajeEfectivo}%, transferencia ${r.porcentajeTransferencia}%|">
+					<span th:if="${r.efectivo > 0}" class="h-full rounded-full bg-acento" th:style="|width: ${r.porcentajeEfectivo}%|"></span>
+					<span th:if="${r.transferencia > 0}" class="h-full flex-1 rounded-full bg-acento/30"></span>
+				</div>
+				<dl class="mt-3 space-y-1 text-sm">
+					<div class="flex items-center gap-2">
+						<span class="size-2.5 shrink-0 rounded-full bg-acento" aria-hidden="true"></span>
+						<dt class="flex-1">Efectivo</dt>
+						<dd class="tabular-nums"><span class="font-medium" th:text="${r.efectivoTexto}">$ 210.000</span>
+							<span class="text-tenue" th:text="|· ${r.porcentajeEfectivo}%|">· 60%</span></dd>
+					</div>
+					<div class="flex items-center gap-2">
+						<span class="size-2.5 shrink-0 rounded-full bg-acento/30" aria-hidden="true"></span>
+						<dt class="flex-1">Transferencia</dt>
+						<dd class="tabular-nums"><span class="font-medium" th:text="${r.transferenciaTexto}">$ 138.000</span>
+							<span class="text-tenue" th:text="|· ${r.porcentajeTransferencia}%|">· 40%</span></dd>
+					</div>
+				</dl>
+			</th:block>
+		</section>
+
+		<!-- Atenciones, los que no vinieron y los cancelados -->
+		<dl class="mt-3 grid grid-cols-3 gap-3">
+			<div class="tarjeta p-4">
+				<dt class="text-xs text-tenue">Atenciones</dt>
+				<dd class="mt-1 text-2xl font-semibold" th:text="${r.atenciones}">29</dd>
+				<dd th:if="${r.sinTurno > 0}" class="text-xs text-tenue" th:text="|${r.sinTurno} sin turno|">4 sin turno</dd>
+			</div>
+			<div class="tarjeta p-4">
+				<dt class="text-xs text-tenue">No vinieron</dt>
+				<dd class="mt-1 text-2xl font-semibold" th:text="${r.ausentes}">2</dd>
+			</div>
+			<div class="tarjeta p-4">
+				<dt class="text-xs text-tenue">Cancelados</dt>
+				<dd class="mt-1 text-2xl font-semibold" th:text="${r.cancelados}">3</dd>
+				<dd th:if="${r.canceladosTarde > 0}" class="text-xs text-tenue" th:text="|${r.canceladosTarde} con poco aviso|">1 con poco aviso</dd>
+			</div>
+		</dl>
+
+		<!-- Lo que todavía no cuenta -->
+		<a th:if="${r.sinCerrar > 0}" th:href="@{/agenda}" class="aviso-error mt-3 flex items-center justify-between gap-3">
+			<span th:text="${r.sinCerrar == 1} ? '1 turno ya pasó y nadie lo cerró: todavía no cuenta.' : |${r.sinCerrar} turnos ya pasaron y nadie los cerró: todavía no cuentan.|">2 turnos ya pasaron y nadie los cerró.</span>
+			<span class="shrink-0" aria-hidden="true">→</span>
+		</a>
+		<p th:if="${r.porDelante > 0}" class="mt-3 text-sm text-tenue"
+		   th:text="${r.porDelante == 1} ? 'Queda 1 turno reservado en este período.' : |Quedan ${r.porDelante} turnos reservados en este período.|">Quedan 5 turnos reservados.</p>
+
+		<!-- Cobrado por día (semana y mes) -->
+		<section th:if="${columnas != null}" class="mt-10" aria-labelledby="por-dia">
+			<h2 id="por-dia" class="text-xl font-medium">Cobrado por día</h2>
+			<p th:if="${mejorDia != null}" class="mt-1 text-sm text-tenue" th:text="|El mejor: ${mejorDia}.|">El mejor: vie 20/11 · $ 48.000.</p>
+			<div class="mt-4 flex h-32 items-end gap-0.5 border-b border-linea" role="img"
+			     th:attr="aria-label=${'Cobrado por día' + (mejorDia != null ? '. El mejor: ' + mejorDia : '')}">
+				<div th:each="c : ${columnas}" class="flex h-full flex-1 items-end justify-center" th:title="${c.detalle}">
+					<span th:if="${c.altura > 0}" class="w-full max-w-6 rounded-t bg-acento" th:style="|height: ${c.altura}%|"></span>
+				</div>
+			</div>
+			<div class="mt-1.5 flex gap-0.5 text-[0.65rem] text-tenue tabular-nums" aria-hidden="true">
+				<span th:each="c : ${columnas}" class="flex-1 text-center" th:classappend="${c.hoy} ? 'font-semibold text-tinta'"
+				      th:text="${c.conEtiqueta or c.hoy} ? ${c.etiqueta} : ''">1</span>
+			</div>
+			<details class="mt-4">
+				<summary class="flex min-h-11 cursor-pointer items-center text-sm font-medium text-tenue">Ver día por día</summary>
+				<table class="mt-2 w-full text-sm">
+					<thead class="sr-only"><tr><th>Día</th><th>Atenciones</th><th>Cobrado</th></tr></thead>
+					<tbody class="divide-y divide-linea">
+						<tr th:each="d : ${r.dias}" th:if="${d.atenciones > 0}">
+							<td class="py-2 first-letter:uppercase" th:text="${d.fechaTexto}">vie 20/11</td>
+							<td class="py-2 text-right text-tenue tabular-nums" th:text="${d.atenciones}">4</td>
+							<td class="py-2 text-right font-medium tabular-nums" th:text="${d.cobradoTexto}">$ 48.000</td>
+						</tr>
+					</tbody>
+				</table>
+			</details>
+		</section>
+
+		<!-- Por barbero (el dueño, viendo a todos): uno debajo del otro, del que más cobró al que menos -->
+		<section th:if="${verTodos and !#lists.isEmpty(r.barberos)}" class="mt-10" aria-labelledby="por-barbero">
+			<h2 id="por-barbero" class="text-xl font-medium">Por barbero</h2>
+			<ul class="mt-4 space-y-2">
+				<li th:each="b : ${r.barberos}">
+					<a th:href="@{${enlaceBarbero}(barbero=${b.id})}" class="-mx-2 block rounded-xl px-2 py-2 hover:bg-superficie">
+						<span class="flex items-baseline justify-between gap-3">
+							<span class="min-w-0 truncate font-medium" th:text="${b.nombre}">Juan</span>
+							<span class="shrink-0 font-medium tabular-nums" th:text="${b.cobradoTexto}">$ 180.000</span>
+						</span>
+						<span class="mt-1.5 block h-2 rounded-full bg-acento/15">
+							<span th:if="${b.cobrado > 0}" class="block h-full rounded-full bg-acento"
+							      th:style="|width: ${r.maximoPorBarbero == 0 ? 0 : b.cobrado * 100 / r.maximoPorBarbero}%|"></span>
+						</span>
+						<span class="mt-1 block text-xs text-tenue"
+						      th:text="${b.detalle}">15 atenciones · 1 no vino</span>
+					</a>
+				</li>
+			</ul>
+		</section>
+
+		<!-- Por servicio: del más hecho al menos -->
+		<section th:unless="${#lists.isEmpty(r.servicios)}" class="mt-10" aria-labelledby="por-servicio">
+			<h2 id="por-servicio" class="text-xl font-medium">Por servicio</h2>
+			<ul class="mt-4 space-y-3">
+				<li th:each="s : ${r.servicios}">
+					<span class="flex items-baseline justify-between gap-3">
+						<span class="min-w-0 truncate font-medium" th:text="${s.nombre}">Corte</span>
+						<span class="shrink-0 text-sm tabular-nums"><span class="text-tenue" th:text="|${s.cantidad} ×|">12 ×</span>
+							<span class="font-medium" th:text="${s.cobradoTexto}">$ 144.000</span></span>
+					</span>
+					<span class="mt-1.5 block h-2 rounded-full bg-acento/15">
+						<span class="block h-full rounded-full bg-acento" th:style="|width: ${s.cantidad * 100 / r.maximoPorServicio}%|"></span>
+					</span>
+				</li>
+			</ul>
+		</section>
+	</th:block>
+</main>
+<nav th:replace="~{fragments/layout :: navegacion('numeros')}"></nav>
+</body>
+</html>
